@@ -1,4 +1,4 @@
-
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -54,7 +54,7 @@ button:focus-visible,
 
 .app {
   width: 100%;
-  max-width: 510px;
+  max-width: 600px;
   margin: 0 auto;
 }
 
@@ -80,7 +80,7 @@ h1 {
 
 .workspace {
   display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  grid-template-columns: minmax(0, 1.533fr) minmax(0, 0.85fr);
   gap: 8px;
   align-items: start;
 }
@@ -204,7 +204,7 @@ h1 {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  max-height: 590px;
+  max-height: 472px;
   overflow-y: auto;
   padding-right: 1px;
 }
@@ -297,9 +297,12 @@ h1 {
   display: grid;
   grid-template-columns: 24px 24px;
   grid-template-rows: 24px 24px;
+
+  /* Left arrows on the left; right arrows on the right. */
   grid-template-areas:
-    "tr tl"
-    "br bl";
+    "tl tr"
+    "bl br";
+
   gap: 1px;
   justify-content: start;
   align-content: center;
@@ -399,7 +402,7 @@ input[type="file"] {
   display: none;
 }
 
-@media (max-width: 380px) {
+@media (max-width: 520px) {
   body {
     padding: 10px 5px;
   }
@@ -438,6 +441,9 @@ input[type="file"] {
   .corner-controls {
     grid-template-columns: 22px 22px;
     grid-template-rows: 22px 22px;
+    grid-template-areas:
+      "tl tr"
+      "bl br";
     gap: 0;
   }
 
@@ -473,7 +479,7 @@ input[type="file"] {
   <div class="workspace">
 
     <!-- BACKGROUND PANEL: LEFT -->
-    <section class="panel">
+    <section class="panel" id="backgroundPanel">
       <div class="panel-heading">
         <button class="small-button" id="chooseBackground">
           Open image
@@ -484,12 +490,13 @@ input[type="file"] {
            id="backgroundZone"
            tabindex="0"
            role="button"
-           aria-label="Drop or select background image">
+           aria-label="Drop, paste, or select background image">
 
         <div class="empty-state" id="backgroundEmpty">
           <div class="empty-icon">▧</div>
           <div>Drop background image here</div>
           <div>or click to browse</div>
+          <div>Ctrl + V to paste</div>
         </div>
 
         <canvas id="previewCanvas"></canvas>
@@ -503,7 +510,7 @@ input[type="file"] {
     </section>
 
     <!-- LAYERS PANEL: RIGHT -->
-    <section class="panel">
+    <section class="panel" id="layersPanel">
       <div class="panel-heading">
         <button class="save-button"
                 id="saveButton"
@@ -525,8 +532,8 @@ input[type="file"] {
            id="layersDrop"
            tabindex="0"
            role="button"
-           aria-label="Add image layers">
-        <span>＋ Add layers<br>Drop images here</span>
+           aria-label="Add or paste image layers">
+        <span>＋ Add layers<br>Drop or paste images here<br>Ctrl + V</span>
       </div>
 
       <input id="layersInput"
@@ -553,6 +560,8 @@ input[type="file"] {
 
 const $ = (id) => document.getElementById(id);
 
+const backgroundPanel = $("backgroundPanel");
+const layersPanel = $("layersPanel");
 const backgroundZone = $("backgroundZone");
 const backgroundInput = $("backgroundInput");
 const backgroundEmpty = $("backgroundEmpty");
@@ -572,6 +581,12 @@ let layers = [];
 let nextLayerId = 1;
 let busy = false;
 
+/*
+ * The last panel clicked determines where pasted images go.
+ * Background is the initial target.
+ */
+let pasteTarget = "background";
+
 const CORNERS = [
   { id: "tl", symbol: "↖", label: "Top left" },
   { id: "tr", symbol: "↗", label: "Top right" },
@@ -585,8 +600,8 @@ function setStatus(message) {
 
 function isImageFile(file) {
   return !!file && (
-    file.type.startsWith("image/") ||
-    /\.(png|jpe?g|webp|gif|bmp|avif|tiff?)$/i.test(file.name)
+    (file.type && file.type.startsWith("image/")) ||
+    /\.(png|jpe?g|webp|gif|bmp|avif|tiff?)$/i.test(file.name || "")
   );
 }
 
@@ -606,7 +621,7 @@ function loadImageFile(file) {
         file,
         image,
         url,
-        name: file.name,
+        name: file.name || "Pasted image",
         width: image.naturalWidth,
         height: image.naturalHeight
       });
@@ -614,7 +629,7 @@ function loadImageFile(file) {
 
     image.onerror = () => {
       URL.revokeObjectURL(url);
-      reject(new Error("Could not read " + file.name));
+      reject(new Error("Could not read " + (file.name || "the image")));
     };
 
     image.src = url;
@@ -707,7 +722,7 @@ async function handleLayerFiles(fileList) {
 
       added++;
     } catch (error) {
-      errors.push(file.name);
+      errors.push(file.name || "Pasted image");
     }
   }
 
@@ -723,6 +738,52 @@ async function handleLayerFiles(fileList) {
   } else {
     setStatus(added + " layer(s) added.");
   }
+}
+
+/*
+ * Extract image files from the clipboard paste event.
+ * Works with copied image data when the browser exposes it
+ * through ClipboardEvent.clipboardData.
+ */
+function getClipboardImages(event) {
+  const clipboard = event.clipboardData;
+
+  if (!clipboard) return [];
+
+  const files = [];
+  const seen = new Set();
+
+  function addFile(file) {
+    if (!file || !isImageFile(file)) return;
+
+    const key = [
+      file.name || "",
+      file.type || "",
+      file.size || 0,
+      file.lastModified || 0
+    ].join("|");
+
+    if (!seen.has(key)) {
+      seen.add(key);
+      files.push(file);
+    }
+  }
+
+  if (clipboard.items) {
+    for (const item of clipboard.items) {
+      if (item.kind === "file" && item.type.startsWith("image/")) {
+        addFile(item.getAsFile());
+      }
+    }
+  }
+
+  if (clipboard.files) {
+    for (const file of clipboard.files) {
+      addFile(file);
+    }
+  }
+
+  return files;
 }
 
 function anchorPosition(layer, width, height) {
@@ -831,7 +892,6 @@ function renderLayerList() {
 
     row.dataset.layerId = String(layer.id);
 
-    // Eye and delete controls are vertically stacked.
     const actions = document.createElement("div");
     actions.className = "layer-actions";
 
@@ -844,6 +904,7 @@ function renderLayerList() {
     eye.setAttribute("aria-pressed", String(layer.visible));
 
     eye.addEventListener("click", () => {
+      pasteTarget = "layers";
       layer.visible = !layer.visible;
       renderLayerList();
       renderPreview();
@@ -864,6 +925,7 @@ function renderLayerList() {
     );
 
     removeButton.addEventListener("click", () => {
+      pasteTarget = "layers";
       deleteLayer(layer.id);
     });
 
@@ -904,6 +966,7 @@ function renderLayerList() {
       );
 
       button.addEventListener("click", () => {
+        pasteTarget = "layers";
         layer.corner = corner.id;
 
         renderLayerList();
@@ -916,6 +979,14 @@ function renderLayerList() {
 
       controls.appendChild(button);
     }
+
+    thumb.addEventListener("click", () => {
+      pasteTarget = "layers";
+    });
+
+    row.addEventListener("click", () => {
+      pasteTarget = "layers";
+    });
 
     row.append(actions, thumb, controls);
     layerList.appendChild(row);
@@ -1050,16 +1121,51 @@ function setupDropZone(element, onFiles) {
       event.dataTransfer.files;
 
     if (files && files.length) {
+      if (element === backgroundZone) {
+        pasteTarget = "background";
+      } else {
+        pasteTarget = "layers";
+      }
+
       onFiles(files);
     }
   });
 }
 
+/* Remember the last panel the user interacted with. */
+backgroundPanel.addEventListener("pointerdown", () => {
+  pasteTarget = "background";
+});
+
+layersPanel.addEventListener("pointerdown", () => {
+  pasteTarget = "layers";
+});
+
+/* Ctrl+V / Cmd+V: paste into the last active panel. */
+document.addEventListener("paste", event => {
+  const files = getClipboardImages(event);
+
+  if (!files.length) {
+    return;
+  }
+
+  event.preventDefault();
+
+  if (pasteTarget === "layers") {
+    handleLayerFiles(files);
+  } else {
+    handleBackgroundFiles(files);
+  }
+});
+
 $("chooseBackground").addEventListener("click", () => {
+  pasteTarget = "background";
   backgroundInput.click();
 });
 
 backgroundZone.addEventListener("click", event => {
+  pasteTarget = "background";
+
   if (
     event.target === backgroundZone ||
     event.target.closest(".empty-state")
@@ -1071,12 +1177,14 @@ backgroundZone.addEventListener("click", event => {
 backgroundZone.addEventListener("keydown", event => {
   if (event.key === "Enter" || event.key === " ") {
     event.preventDefault();
+    pasteTarget = "background";
     backgroundInput.click();
   }
 });
 
 backgroundInput.addEventListener("change", () => {
   if (backgroundInput.files.length) {
+    pasteTarget = "background";
     handleBackgroundFiles(backgroundInput.files);
   }
 
@@ -1084,18 +1192,21 @@ backgroundInput.addEventListener("change", () => {
 });
 
 layersDrop.addEventListener("click", () => {
+  pasteTarget = "layers";
   layersInput.click();
 });
 
 layersDrop.addEventListener("keydown", event => {
   if (event.key === "Enter" || event.key === " ") {
     event.preventDefault();
+    pasteTarget = "layers";
     layersInput.click();
   }
 });
 
 layersInput.addEventListener("change", () => {
   if (layersInput.files.length) {
+    pasteTarget = "layers";
     handleLayerFiles(layersInput.files);
   }
 
@@ -1121,3 +1232,4 @@ updateSaveButton();
 </script>
 </body>
 </html>
+```
