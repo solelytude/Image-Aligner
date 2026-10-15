@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -31,7 +30,11 @@ h1 { margin:0; font-size:20px; font-weight:650; letter-spacing:-.4px; }
   display:grid; grid-template-columns:minmax(0,1.533fr) minmax(0,.85fr);
   gap:8px; align-items:start;
 }
-.panel { min-width:0; background:var(--panel); border:1px solid var(--border); border-radius:9px; padding:7px; }
+.panel {
+  min-width:0; background:var(--panel); border:1px solid var(--border);
+  border-radius:9px; padding:7px;
+}
+.panel.drag-over { border-color:var(--accent); }
 .panel-heading {
   display:flex; align-items:center; justify-content:flex-end;
   flex-wrap:nowrap; gap:4px; min-height:29px; margin-bottom:7px;
@@ -42,9 +45,13 @@ h1 { margin:0; font-size:20px; font-weight:650; letter-spacing:-.4px; }
   border-radius:6px; background:var(--panel2); white-space:nowrap; font-size:11px;
 }
 .small-button:hover { background:#343a44; }
-.save-button { background:#d5e4ff; color:#18253a; border-color:#d5e4ff; font-weight:650; }
+.save-button {
+  order:2; flex:0 0 auto; background:#d5e4ff; color:#18253a;
+  border-color:#d5e4ff; font-weight:650;
+}
 .save-button:hover:not(:disabled) { background:#bcd4ff; }
 .save-button:disabled { opacity:.4; cursor:not-allowed; }
+
 .drop-zone {
   position:relative; display:flex; align-items:center; justify-content:center;
   overflow:hidden; border:1px dashed #505763; border-radius:7px; background:#191c21;
@@ -61,19 +68,36 @@ h1 { margin:0; font-size:20px; font-weight:650; letter-spacing:-.4px; }
   padding:12px; text-align:center; color:var(--muted); font-size:11px;
 }
 .empty-icon { font-size:30px; line-height:1; opacity:.75; }
-#backgroundName {
-  margin-top:7px; min-height:16px; overflow:hidden; color:var(--muted);
-  font-size:10px; text-overflow:ellipsis; white-space:nowrap;
+
+.background-name-row {
+  display:flex; align-items:center; gap:4px; min-width:0; margin-top:7px;
 }
+#backgroundName {
+  flex:1; min-width:0; min-height:16px; margin:0; overflow:hidden;
+  color:var(--muted); font-size:10px; text-overflow:ellipsis; white-space:nowrap;
+}
+#removeBackground {
+  display:none; flex:0 0 19px; width:19px; height:19px; align-items:center;
+  justify-content:center; padding:0; border:1px solid #414752; border-radius:4px;
+  background:#242830; color:#d99a9a; font-size:15px; line-height:1;
+}
+#removeBackground:hover { background:#482b30; color:#ffaaaa; }
+
 .counter { color:var(--muted); font-size:10px; margin:0 0 5px; }
-.layer-list { display:flex; flex-direction:column; gap:4px; max-height:472px; overflow-y:auto; padding-right:1px; }
+.layer-list {
+  display:flex; flex-direction:column; gap:4px; max-height:472px;
+  overflow-y:auto; padding-right:1px;
+}
 .layer-row {
   display:grid; grid-template-columns:20px 58px minmax(0,1fr);
   gap:3px; align-items:center; min-width:0; min-height:100px;
   padding:4px 3px; border:1px solid transparent; border-radius:6px; background:#191c21;
 }
 .layer-row.hidden-layer { opacity:.48; }
-.layer-actions { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; width:20px; }
+.layer-actions {
+  display:flex; flex-direction:column; align-items:center;
+  justify-content:center; gap:1px; width:20px;
+}
 .eye-button,.delete-button {
   display:flex; align-items:center; justify-content:center;
   width:20px; height:20px; padding:0; border:0; border-radius:4px; background:transparent;
@@ -92,10 +116,15 @@ h1 { margin:0; font-size:20px; font-weight:650; letter-spacing:-.4px; }
   background-size:12px 12px; background-position:0 0,0 6px,6px -6px,-6px 0;
 }
 .thumb img { display:block; width:100%; height:100%; object-fit:contain; }
-.layer-tools { min-width:0; display:flex; flex-direction:column; align-items:stretch; justify-content:center; gap:3px; }
+
+.layer-tools {
+  min-width:0; display:flex; flex-direction:row; align-items:center;
+  justify-content:flex-start; gap:2px;
+}
 .corner-controls {
   display:grid; grid-template-columns:22px 22px; grid-template-rows:21px 21px;
-  grid-template-areas:"tl tr" "bl br"; gap:0; justify-content:start; align-content:center; min-width:0;
+  grid-template-areas:"tl tr" "bl br"; gap:0; justify-content:start;
+  align-content:center; flex:0 0 auto; min-width:0;
 }
 .corner-button {
   display:flex; align-items:center; justify-content:center; width:22px; height:21px;
@@ -109,16 +138,23 @@ h1 { margin:0; font-size:20px; font-weight:650; letter-spacing:-.4px; }
 .corner-button:hover { background:#343a44; }
 .corner-button.selected { background:var(--active); border-color:#648bc3; color:#fff; }
 
+.layer-side-controls {
+  display:flex; flex:0 1 auto; flex-direction:column; align-items:center;
+  justify-content:center; gap:3px; min-width:0;
+}
 .opacity-control {
-  display:grid; grid-template-columns:11px 3ch; align-items:center;
-  justify-content:start; gap:2px; width:max-content; max-width:100%;
+  display:flex; flex-direction:row; align-items:center;
+  justify-content:center; gap:2px; width:max-content; max-width:100%;
 }
 .opacity-icon {
-  display:flex; align-items:center; justify-content:center;
-  width:11px; overflow:hidden; font-size:12px; line-height:20px;
+  display:block; flex:0 0 11px; width:11px; height:11px; overflow:hidden;
+  border:1px solid #a9b0bd; border-radius:50%;
+  background-color:#343943;
+  background-image:repeating-conic-gradient(#c9cfda 0% 25%,#343943 0% 50%);
+  background-size:6px 6px;
 }
 .opacity-input {
-  display:block; width:3ch; min-width:0; height:21px; padding:1px 0;
+  display:block; flex:0 0 3ch; width:3ch; min-width:0; height:21px; padding:1px 0;
   border:1px solid #414752; border-radius:4px; outline:none;
   background:#242830; color:var(--text); font-size:10px; text-align:center;
   appearance:textfield; -moz-appearance:textfield;
@@ -126,37 +162,39 @@ h1 { margin:0; font-size:20px; font-weight:650; letter-spacing:-.4px; }
 .opacity-input::-webkit-inner-spin-button,.opacity-input::-webkit-outer-spin-button {
   -webkit-appearance:none; margin:0;
 }
-.opacity-input:focus,.brush-input:focus { border-color:var(--accent); }
-.layer-controls-bottom { display:flex; align-items:center; gap:3px; min-width:0; }
+.opacity-input:focus,.brush-value:focus { border-color:var(--accent); }
 .eraser-toggle {
   display:flex; align-items:center; justify-content:center;
-  width:25px; min-width:25px; height:23px; padding:1px;
+  flex:0 0 23px; width:23px; min-width:23px; height:22px; padding:0;
   border:1px solid #414752; border-radius:4px;
   background:#242830; color:#c6ccd7; font-size:13px;
 }
 .eraser-toggle:hover { background:#343a44; }
 .eraser-toggle.active { background:#513b28; border-color:#d6a15e; color:#ffe0ae; }
 
-.brush-settings { display:flex; align-items:center; justify-content:flex-end; gap:5px; min-width:0; }
+.brush-settings {
+  order:1; display:flex; align-items:center; justify-content:flex-end;
+  gap:4px; min-width:0; flex:0 1 auto;
+}
 .brush-setting {
-  display:flex; align-items:center; justify-content:center; flex:0 0 auto;
-  width:17px; height:24px; position:relative; cursor:default;
+  display:flex; align-items:center; justify-content:center; flex:0 0 13px;
+  width:13px; height:24px; position:relative; cursor:default;
 }
 .brush-input {
   position:absolute; inset:0; width:100%; height:100%; opacity:0;
   pointer-events:none;
 }
 .brush-icon-size {
-  display:block; width:13px; height:13px; border:1.5px solid #d9deea;
+  display:block; width:12px; height:12px; border:1.5px solid #d9deea;
   border-radius:50%; flex:none;
 }
 .brush-icon-hardness {
-  display:block; width:14px; height:14px; border-radius:50%; flex:none;
+  display:block; width:13px; height:13px; border-radius:50%; flex:none;
   background:radial-gradient(circle,#e7ebf3 0%,rgba(231,235,243,.72) 38%,rgba(231,235,243,0) 72%);
 }
 .brush-setting:focus-within { outline:1px solid var(--accent); border-radius:4px; }
 .brush-value {
-  width:25px; min-width:25px; height:24px; padding:2px 1px;
+  flex:0 0 29px; width:29px; min-width:29px; height:24px; padding:2px 1px;
   border:1px solid var(--border); border-radius:4px; outline:none;
   background:#191c21; color:var(--text); font-size:10px; text-align:center;
   appearance:textfield; -moz-appearance:textfield;
@@ -203,17 +241,17 @@ input[type="file"] { display:none; }
   .thumb { width:46px; height:46px; }
   .corner-controls { grid-template-columns:20px 20px; grid-template-rows:20px 20px; }
   .corner-button { width:20px; height:20px; font-size:14px; }
-  .opacity-control { grid-template-columns:10px 3ch; gap:1px; }
-  .opacity-icon { width:10px; font-size:11px; }
+  .opacity-control { gap:1px; }
+  .opacity-icon { flex-basis:10px; width:10px; height:10px; }
   .opacity-input { height:20px; font-size:10px; }
-  .eraser-toggle { width:23px; min-width:23px; height:21px; font-size:12px; }
+  .eraser-toggle { flex-basis:21px; width:21px; min-width:21px; height:21px; font-size:12px; }
   #backgroundZone { min-height:200px; }
   .small-button,.save-button { padding:4px 5px; font-size:10px; }
   .brush-settings { gap:2px; }
-  .brush-setting { width:14px; }
-  .brush-icon-size { width:11px; height:11px; }
-  .brush-icon-hardness { width:12px; height:12px; }
-  .brush-value { width:22px; min-width:22px; height:22px; font-size:9px; }
+  .brush-setting { flex-basis:11px; width:11px; }
+  .brush-icon-size { width:10px; height:10px; }
+  .brush-icon-hardness { width:11px; height:11px; }
+  .brush-value { flex-basis:26px; width:26px; min-width:26px; height:22px; font-size:9px; }
 }
 </style>
 </head>
@@ -241,25 +279,28 @@ input[type="file"] { display:none; }
         </div>
         <canvas id="previewCanvas"></canvas>
       </div>
-      <div id="backgroundName">No background selected</div>
+      <div class="background-name-row">
+        <div id="backgroundName">No background selected</div>
+        <button id="removeBackground" type="button" title="Remove background and clear all layers" aria-label="Remove background and clear all layers">×</button>
+      </div>
       <input id="backgroundInput" type="file" accept="image/*">
     </section>
 
     <section class="panel" id="layersPanel">
       <div class="panel-heading">
-        <button class="save-button" id="saveButton" disabled title="Save the composed image">↓ Save</button>
         <div class="brush-settings" aria-label="Eraser brush settings">
-          <label class="brush-setting" title="Brush size in image pixels">
+          <label class="brush-setting" title="Brush diameter in preview-panel pixels">
             <span class="brush-icon-size" aria-hidden="true"></span>
             <input class="brush-input" id="brushSize" type="number" min="1" max="5000" step="1" value="40" aria-label="Brush size">
           </label>
-          <input class="brush-value" id="brushSizeValue" type="number" min="1" max="5000" step="1" value="40" title="Brush size in pixels" aria-label="Brush size in pixels">
+          <input class="brush-value" id="brushSizeValue" type="number" min="1" max="5000" step="1" value="40" title="Brush diameter in preview-panel pixels" aria-label="Brush size in preview-panel pixels">
           <label class="brush-setting" title="Brush hardness: 0 soft, 100 hard">
             <span class="brush-icon-hardness" aria-hidden="true"></span>
             <input class="brush-input" id="brushHardness" type="number" min="0" max="100" step="1" value="80" aria-label="Brush hardness">
           </label>
           <input class="brush-value" id="brushHardnessValue" type="number" min="0" max="100" step="1" value="80" title="Brush hardness percentage" aria-label="Brush hardness percentage">
         </div>
+        <button class="save-button" id="saveButton" disabled title="Save the composed image">↓ Save</button>
       </div>
 
       <div class="counter" id="layerCounter">0 layers</div>
@@ -293,6 +334,7 @@ const backgroundZone = $("backgroundZone");
 const backgroundInput = $("backgroundInput");
 const backgroundEmpty = $("backgroundEmpty");
 const backgroundName = $("backgroundName");
+const removeBackgroundButton = $("removeBackground");
 const previewCanvas = $("previewCanvas");
 const ctx = previewCanvas.getContext("2d", {alpha:true});
 const layersInput = $("layersInput");
@@ -404,10 +446,31 @@ function resetLayers() {
   for (const layer of layers) releaseImage(layer);
   layers = [];
   activeEraserLayerId = null;
-  updateBrushCursor();
+  drawingStroke = false;
+  strokeLayer = null;
+  lastBrushPoint = null;
   renderLayerList();
   renderPreview();
   updateSaveButton();
+  updateBrushCursor();
+}
+
+function removeBackground() {
+  if (!background) return;
+  const oldBackground = background;
+  background = null;
+  releaseImage(oldBackground);
+  resetLayers();
+  backgroundName.textContent = "No background selected";
+  backgroundName.title = "";
+  removeBackgroundButton.style.display = "none";
+  previewCanvas.width = 1;
+  previewCanvas.height = 1;
+  backgroundEmpty.style.display = "flex";
+  previewCanvas.style.display = "none";
+  updateSaveButton();
+  updateBrushCursor();
+  setStatus("Background removed. All layers cleared.");
 }
 
 async function handleBackgroundFiles(fileList) {
@@ -422,10 +485,14 @@ async function handleBackgroundFiles(fileList) {
     for (const layer of layers) releaseImage(layer);
     layers = [];
     activeEraserLayerId = null;
+    drawingStroke = false;
+    strokeLayer = null;
+    lastBrushPoint = null;
     backgroundEmpty.style.display = "none";
     previewCanvas.style.display = "block";
     backgroundName.textContent = loaded.name;
     backgroundName.title = loaded.name;
+    removeBackgroundButton.style.display = "flex";
     renderLayerList();
     renderPreview();
     updateSaveButton();
@@ -450,6 +517,7 @@ async function handleLayerFiles(fileList) {
   renderLayerList();
   renderPreview();
   updateSaveButton();
+  updateBrushCursor();
   setStatus(errors.length
     ? added + " layer(s) added. Could not load: " + errors.join(", ")
     : added + " layer(s) added.");
@@ -565,6 +633,7 @@ function deleteLayer(id) {
     activeEraserLayerId = null;
     drawingStroke = false;
     strokeLayer = null;
+    lastBrushPoint = null;
   }
   renderLayerList();
   renderPreview();
@@ -579,8 +648,8 @@ function makeOpacityControl(layer) {
   wrapper.title = "Layer opacity (0–100%)";
   const icon = document.createElement("span");
   icon.className = "opacity-icon";
-  icon.textContent = "⚑";
   icon.title = "Layer opacity";
+  icon.setAttribute("aria-hidden","true");
   const input = document.createElement("input");
   input.className = "opacity-input";
   input.type = "number"; input.min = "0"; input.max = "100"; input.step = "1";
@@ -696,10 +765,10 @@ function renderLayerList() {
       });
       corners.appendChild(button);
     }
-    const bottom = document.createElement("div");
-    bottom.className = "layer-controls-bottom";
-    bottom.append(makeOpacityControl(layer),makeEraserToggle(layer));
-    tools.append(corners,bottom);
+    const sideControls = document.createElement("div");
+    sideControls.className = "layer-side-controls";
+    sideControls.append(makeOpacityControl(layer),makeEraserToggle(layer));
+    tools.append(corners,sideControls);
     thumb.addEventListener("click",() => { pasteTarget = "layers"; });
     row.addEventListener("click",() => { pasteTarget = "layers"; });
     row.addEventListener("contextmenu",event => showContextMenu(event,"layers"));
@@ -760,6 +829,10 @@ function makeBrushGradient(context,x,y,radius,hardness) {
   const gradient = context.createRadialGradient(x,y,0,x,y,radius);
   const innerStop = clamp(hardness/100,0,1);
   gradient.addColorStop(0,"rgba(0,0,0,1)");
+  if (innerStop >= 1) {
+    gradient.addColorStop(1,"rgba(0,0,0,1)");
+    return gradient;
+  }
   if (innerStop > 0) gradient.addColorStop(innerStop,"rgba(0,0,0,1)");
   gradient.addColorStop(1,"rgba(0,0,0,0)");
   return gradient;
@@ -778,8 +851,9 @@ function eraseAt(layer,point,size,hardness) {
 }
 function eraseStrokeSegment(layer,from,to,size,hardness) {
   const distance = Math.hypot(to.x-from.x,to.y-from.y);
-  // Lower hardness increases the gap between brush stamps, up to 30% of brush diameter.
-  const spacingFactor = (1-hardness/100)*0.30;
+  // At hardness 100%, stamps are nearly continuous.
+  // At hardness 0%, center-to-center spacing reaches 80% of brush diameter.
+  const spacingFactor = (1-hardness/100)*0.80;
   const spacing = Math.max(0.5,size*spacingFactor);
   const steps = Math.max(1,Math.ceil(distance/spacing));
   for (let i=1;i<=steps;i++) {
@@ -798,7 +872,7 @@ function getActiveEraserLayer(point) {
   if (!localPoint) return null;
   return {layer,localPoint};
 }
-function updateBrushCursor(event) {
+function updateBrushCursor() {
   const enabled = activeEraserLayerId !== null && !!background;
   previewCanvas.classList.toggle("eraser-cursor",enabled);
   if (!enabled || !lastPointerPosition) {
@@ -807,8 +881,10 @@ function updateBrushCursor(event) {
   }
   const point = getBackgroundPoint(lastPointerPosition);
   if (!point) { brushCursor.style.display = "none"; return; }
-  const diameter = getBrushSize()*point.scale;
-  const rect = previewCanvas.getBoundingClientRect();
+
+  // Brush size is measured in CSS pixels in the preview panel,
+  // independently of the source image's natural dimensions.
+  const diameter = getBrushSize();
   brushCursor.style.width = Math.max(2,diameter) + "px";
   brushCursor.style.height = Math.max(2,diameter) + "px";
   brushCursor.style.left = point.clientX + "px";
@@ -817,10 +893,14 @@ function updateBrushCursor(event) {
 }
 previewCanvas.addEventListener("pointermove",event => {
   lastPointerPosition = event;
-  updateBrushCursor(event);
+  updateBrushCursor();
+});
+previewCanvas.addEventListener("pointerenter",event => {
+  lastPointerPosition = event;
+  updateBrushCursor();
 });
 previewCanvas.addEventListener("pointerleave",() => {
-  if (!drawingStroke) brushCursor.style.display = "none";
+  brushCursor.style.display = "none";
 });
 previewCanvas.addEventListener("pointerdown",event => {
   if (!background || activeEraserLayerId === null) return;
@@ -833,27 +913,33 @@ previewCanvas.addEventListener("pointerdown",event => {
   drawingStroke = true;
   strokeLayer = target.layer;
   lastBrushPoint = target.localPoint;
-  eraseAt(strokeLayer,lastBrushPoint,getBrushSize(),getBrushHardness());
+
+  // Convert the preview-panel pixel diameter into source-image coordinates.
+  const sourceBrushSize = getBrushSize()/backgroundPoint.scale;
+  eraseAt(strokeLayer,lastBrushPoint,sourceBrushSize,getBrushHardness());
+  rebuildLayerCanvas(strokeLayer);
   previewCanvas.setPointerCapture(event.pointerId);
   renderPreview();
-  updateBrushCursor(event);
+  updateBrushCursor();
 });
 previewCanvas.addEventListener("pointermove",event => {
-  if (!drawingStroke || !strokeLayer || !lastBrushPoint) return;
+  if (!drawingStroke || !strokeLayer) return;
   const backgroundPoint = getBackgroundPoint(event);
-  if (!backgroundPoint) return;
+  if (!backgroundPoint) { lastBrushPoint = null; return; }
   const localPoint = pointInsideLayer(strokeLayer,backgroundPoint);
   if (!localPoint) { lastBrushPoint = null; return; }
   event.preventDefault();
+
+  const sourceBrushSize = getBrushSize()/backgroundPoint.scale;
   if (lastBrushPoint) {
-    eraseStrokeSegment(strokeLayer,lastBrushPoint,localPoint,getBrushSize(),getBrushHardness());
+    eraseStrokeSegment(strokeLayer,lastBrushPoint,localPoint,sourceBrushSize,getBrushHardness());
   } else {
-    eraseAt(strokeLayer,localPoint,getBrushSize(),getBrushHardness());
+    eraseAt(strokeLayer,localPoint,sourceBrushSize,getBrushHardness());
   }
   lastBrushPoint = localPoint;
   rebuildLayerCanvas(strokeLayer);
   renderPreview();
-  updateBrushCursor(event);
+  updateBrushCursor();
 });
 function finishEraserStroke() {
   if (!drawingStroke) return;
@@ -861,6 +947,7 @@ function finishEraserStroke() {
   strokeLayer = null;
   lastBrushPoint = null;
   renderPreview();
+  updateBrushCursor();
   setStatus("Eraser stroke applied.");
 }
 previewCanvas.addEventListener("pointerup",finishEraserStroke);
@@ -912,17 +999,28 @@ async function saveComposition() {
 }
 
 function setupDropZone(element,onFiles,target) {
-  element.addEventListener("dragover",event => { event.preventDefault(); element.classList.add("drag-over"); });
+  element.addEventListener("dragover",event => {
+    event.preventDefault();
+    element.classList.add("drag-over");
+    if (event.dataTransfer) event.dataTransfer.dropEffect = "copy";
+  });
   element.addEventListener("dragleave",event => {
     if (!element.contains(event.relatedTarget)) element.classList.remove("drag-over");
   });
   element.addEventListener("drop",event => {
-    event.preventDefault(); element.classList.remove("drag-over");
+    event.preventDefault();
+    event.stopPropagation();
+    element.classList.remove("drag-over");
     const files = event.dataTransfer && event.dataTransfer.files;
-    if (files && files.length) { pasteTarget = target; onFiles(files); }
+    if (files && files.length) {
+      pasteTarget = target;
+      onFiles(files);
+    }
   });
-  element.addEventListener("contextmenu",event => showContextMenu(event,target));
 }
+setupDropZone(backgroundZone,handleBackgroundFiles,"background");
+setupDropZone(layersPanel,handleLayerFiles,"layers");
+
 backgroundPanel.addEventListener("pointerdown",() => { pasteTarget = "background"; });
 layersPanel.addEventListener("pointerdown",() => { pasteTarget = "layers"; });
 document.addEventListener("paste",event => {
@@ -933,6 +1031,10 @@ document.addEventListener("paste",event => {
   else handleBackgroundFiles(files);
 });
 $("chooseBackground").addEventListener("click",() => { pasteTarget = "background"; backgroundInput.click(); });
+removeBackgroundButton.addEventListener("click",event => {
+  event.stopPropagation();
+  removeBackground();
+});
 backgroundZone.addEventListener("click",event => {
   if (activeEraserLayerId !== null) return;
   pasteTarget = "background";
@@ -958,7 +1060,10 @@ layersInput.addEventListener("change",() => {
 contextPaste.addEventListener("click",pasteFromContextMenu);
 document.addEventListener("pointerdown",event => { if (!contextMenu.contains(event.target)) hideContextMenu(); });
 document.addEventListener("keydown",event => { if (event.key === "Escape") hideContextMenu(); });
-window.addEventListener("resize",hideContextMenu);
+window.addEventListener("resize",() => {
+  hideContextMenu();
+  updateBrushCursor();
+});
 window.addEventListener("scroll",hideContextMenu,true);
 saveButton.addEventListener("click",saveComposition);
 window.addEventListener("beforeunload",() => {
