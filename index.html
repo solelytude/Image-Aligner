@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -18,9 +19,7 @@
   --active: #304565;
 }
 
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 html {
   min-height: 100%;
@@ -35,14 +34,8 @@ body {
   font: 13px/1.45 "Segoe UI", Arial, sans-serif;
 }
 
-button, input {
-  font: inherit;
-}
-
-button {
-  color: inherit;
-  cursor: pointer;
-}
+button, input { font: inherit; }
+button { color: inherit; cursor: pointer; }
 
 button:focus-visible,
 .drop-zone:focus-visible,
@@ -96,6 +89,7 @@ h1 {
   display: flex;
   align-items: center;
   justify-content: flex-end;
+  flex-wrap: wrap;
   gap: 5px;
   min-height: 29px;
   margin-bottom: 7px;
@@ -116,9 +110,7 @@ h1 {
   font-size: 11px;
 }
 
-.small-button:hover {
-  background: #343a44;
-}
+.small-button:hover { background: #343a44; }
 
 .save-button {
   background: #d5e4ff;
@@ -127,9 +119,7 @@ h1 {
   font-weight: 650;
 }
 
-.save-button:hover:not(:disabled) {
-  background: #bcd4ff;
-}
+.save-button:hover:not(:disabled) { background: #bcd4ff; }
 
 .save-button:disabled {
   opacity: .4;
@@ -164,6 +154,7 @@ h1 {
   width: 100%;
   height: 100%;
   object-fit: contain;
+  touch-action: none;
 }
 
 .empty-state {
@@ -210,20 +201,18 @@ h1 {
 
 .layer-row {
   display: grid;
-  grid-template-columns: 20px 66px 1fr;
-  gap: 2px;
+  grid-template-columns: 20px 58px minmax(0, 1fr);
+  gap: 3px;
   align-items: center;
   min-width: 0;
-  min-height: 68px;
-  padding: 3px;
+  min-height: 100px;
+  padding: 4px 3px;
   border: 1px solid transparent;
   border-radius: 6px;
   background: #191c21;
 }
 
-.layer-row.hidden-layer {
-  opacity: .48;
-}
+.layer-row.hidden-layer { opacity: .48; }
 
 .layer-actions {
   display: flex;
@@ -252,9 +241,7 @@ h1 {
   font-size: 14px;
 }
 
-.eye-button:hover {
-  background: var(--panel2);
-}
+.eye-button:hover { background: var(--panel2); }
 
 .delete-button {
   color: #d17b7b;
@@ -269,8 +256,8 @@ h1 {
 
 .thumb {
   display: block;
-  width: 66px;
-  height: 60px;
+  width: 58px;
+  height: 54px;
   padding: 0;
   overflow: hidden;
   border: 1px solid #3c424c;
@@ -292,62 +279,154 @@ h1 {
   object-fit: contain;
 }
 
+.layer-tools {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  gap: 3px;
+}
+
 .corner-controls {
   display: grid;
-  grid-template-columns: 24px 24px;
-  grid-template-rows: 24px 24px;
-
-  /* Left arrows on the left; right arrows on the right. */
+  grid-template-columns: 22px 22px;
+  grid-template-rows: 21px 21px;
   grid-template-areas:
     "tl tr"
     "bl br";
-
-  gap: 1px;
+  gap: 0;
   justify-content: start;
   align-content: center;
   min-width: 0;
-  margin-left: 0;
 }
 
 .corner-button {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 21px;
   padding: 0;
   border: 1px solid transparent;
   border-radius: 4px;
   background: transparent;
   color: #aab2c0;
-  font-size: 17px;
+  font-size: 16px;
   line-height: 1;
 }
 
-.corner-button[data-corner="tr"] {
-  grid-area: tr;
-}
+.corner-button[data-corner="tr"] { grid-area: tr; }
+.corner-button[data-corner="tl"] { grid-area: tl; }
+.corner-button[data-corner="br"] { grid-area: br; }
+.corner-button[data-corner="bl"] { grid-area: bl; }
 
-.corner-button[data-corner="tl"] {
-  grid-area: tl;
-}
-
-.corner-button[data-corner="br"] {
-  grid-area: br;
-}
-
-.corner-button[data-corner="bl"] {
-  grid-area: bl;
-}
-
-.corner-button:hover {
-  background: #343a44;
-}
+.corner-button:hover { background: #343a44; }
 
 .corner-button.selected {
   background: var(--active);
   border-color: #648bc3;
   color: #fff;
+}
+
+.opacity-control {
+  display: grid;
+  grid-template-columns: 19px minmax(0, 1fr);
+  align-items: center;
+  gap: 3px;
+  width: 100%;
+}
+
+.opacity-icon {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #d5dbe6;
+  font-size: 15px;
+  line-height: 22px;
+  text-align: center;
+  cursor: default;
+}
+
+.opacity-input {
+  width: 100%;
+  min-width: 0;
+  height: 23px;
+  padding: 2px 3px;
+  border: 1px solid #414752;
+  border-radius: 4px;
+  outline: none;
+  background: #242830;
+  color: var(--text);
+  font-size: 10px;
+  text-align: center;
+}
+
+.opacity-input:focus,
+.brush-input:focus {
+  border-color: var(--accent);
+}
+
+.eraser-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-width: 0;
+  min-height: 24px;
+  padding: 2px 4px;
+  border: 1px solid #414752;
+  border-radius: 4px;
+  background: #242830;
+  color: #c6ccd7;
+  font-size: 12px;
+}
+
+.eraser-toggle:hover { background: #343a44; }
+
+.eraser-toggle.active {
+  background: #513b28;
+  border-color: #d6a15e;
+  color: #ffe0ae;
+}
+
+.eraser-toggle .eraser-label {
+  font-size: 9px;
+}
+
+.brush-settings {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 5px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+.brush-setting {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.brush-input {
+  width: 48px;
+  height: 27px;
+  padding: 3px 5px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  outline: none;
+  background: #191c21;
+  color: var(--text);
+  font-size: 11px;
+  text-align: center;
+}
+
+.brush-unit {
+  color: var(--muted);
+  font-size: 9px;
 }
 
 .layers-drop {
@@ -371,9 +450,7 @@ h1 {
   color: var(--text);
 }
 
-.layers-drop span {
-  display: block;
-}
+.layers-drop span { display: block; }
 
 .layer-empty {
   padding: 20px 5px;
@@ -397,34 +474,61 @@ footer {
   text-align: center;
 }
 
-input[type="file"] {
+input[type="file"] { display: none; }
+
+.context-menu {
+  position: fixed;
+  z-index: 100000;
   display: none;
+  min-width: 145px;
+  padding: 5px;
+  border: 1px solid #454c58;
+  border-radius: 7px;
+  background: #252932;
+  box-shadow: 0 8px 24px rgba(0,0,0,.45);
+}
+
+.context-menu button {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  text-align: left;
+  font-size: 12px;
+}
+
+.context-menu button:hover {
+  background: #394251;
+}
+
+.context-menu .menu-hint {
+  padding: 5px 10px 3px;
+  color: var(--muted);
+  font-size: 9px;
 }
 
 @media (max-width: 520px) {
-  body {
-    padding: 10px 5px;
-  }
+  body { padding: 10px 5px; }
 
   .workspace {
     grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
     gap: 5px;
   }
 
-  .panel {
-    padding: 5px;
-  }
+  .panel { padding: 5px; }
 
   .layer-row {
-    grid-template-columns: 18px minmax(0, 1fr) 45px;
+    grid-template-columns: 18px 46px minmax(0, 1fr);
     gap: 2px;
-    min-height: 57px;
-    padding: 2px;
+    min-height: 100px;
+    padding: 3px 2px;
   }
 
-  .layer-actions {
-    width: 18px;
-  }
+  .layer-actions { width: 18px; }
 
   .eye-button,
   .delete-button {
@@ -433,34 +537,51 @@ input[type="file"] {
   }
 
   .thumb {
-    width: 100%;
-    height: 49px;
+    width: 46px;
+    height: 46px;
   }
 
   .corner-controls {
-    grid-template-columns: 22px 22px;
-    grid-template-rows: 22px 22px;
-    grid-template-areas:
-      "tl tr"
-      "bl br";
-    gap: 0;
+    grid-template-columns: 20px 20px;
+    grid-template-rows: 20px 20px;
   }
 
   .corner-button {
-    width: 22px;
-    height: 22px;
-    font-size: 15px;
+    width: 20px;
+    height: 20px;
+    font-size: 14px;
   }
 
-  #backgroundZone {
-    min-height: 200px;
+  .opacity-control {
+    grid-template-columns: 16px minmax(0, 1fr);
+    gap: 2px;
   }
+
+  .opacity-icon { font-size: 13px; }
+
+  .opacity-input {
+    height: 22px;
+    padding: 2px;
+    font-size: 10px;
+  }
+
+  .eraser-toggle {
+    min-height: 22px;
+    padding: 2px;
+  }
+
+  .eraser-toggle .eraser-label { font-size: 8px; }
+
+  #backgroundZone { min-height: 200px; }
 
   .small-button,
   .save-button {
     padding: 4px 5px;
     font-size: 10px;
   }
+
+  .brush-settings { gap: 4px; }
+  .brush-input { width: 42px; }
 }
 </style>
 </head>
@@ -477,7 +598,6 @@ input[type="file"] {
 
   <div class="workspace">
 
-    <!-- BACKGROUND PANEL: LEFT -->
     <section class="panel" id="backgroundPanel">
       <div class="panel-heading">
         <button class="small-button" id="chooseBackground">
@@ -496,6 +616,7 @@ input[type="file"] {
           <div>Drop background image here</div>
           <div>or click to browse</div>
           <div>Ctrl + V to paste</div>
+          <div>Right-click for Paste</div>
         </div>
 
         <canvas id="previewCanvas"></canvas>
@@ -503,12 +624,9 @@ input[type="file"] {
 
       <div id="backgroundName">No background selected</div>
 
-      <input id="backgroundInput"
-             type="file"
-             accept="image/*">
+      <input id="backgroundInput" type="file" accept="image/*">
     </section>
 
-    <!-- LAYERS PANEL: RIGHT -->
     <section class="panel" id="layersPanel">
       <div class="panel-heading">
         <button class="save-button"
@@ -517,6 +635,32 @@ input[type="file"] {
                 title="Save the composed image">
           ↓ Save
         </button>
+      </div>
+
+      <div class="brush-settings">
+        <label class="brush-setting" title="Eraser brush diameter in image pixels">
+          Size
+          <input class="brush-input"
+                 id="brushSize"
+                 type="number"
+                 min="1"
+                 max="5000"
+                 step="1"
+                 value="40">
+          <span class="brush-unit">px</span>
+        </label>
+
+        <label class="brush-setting" title="100 = hard edge, 0 = soft edge">
+          Hardness
+          <input class="brush-input"
+                 id="brushHardness"
+                 type="number"
+                 min="0"
+                 max="100"
+                 step="1"
+                 value="80">
+          <span class="brush-unit">%</span>
+        </label>
       </div>
 
       <div class="counter" id="layerCounter">0 layers</div>
@@ -532,21 +676,15 @@ input[type="file"] {
            tabindex="0"
            role="button"
            aria-label="Add or paste image layers">
-        <span>＋ Add layers<br>Drop or paste images here<br>Ctrl + V</span>
+        <span>＋ Add layers<br>Drop or paste images here<br>Ctrl + V · Right-click</span>
       </div>
 
-      <input id="layersInput"
-             type="file"
-             accept="image/*"
-             multiple>
+      <input id="layersInput" type="file" accept="image/*" multiple>
     </section>
 
   </div>
 
-  <div class="status"
-       id="status"
-       role="status"
-       aria-live="polite"></div>
+  <div class="status" id="status" role="status" aria-live="polite"></div>
 
   <footer>
     Images are processed locally in your browser. No image uploads.
@@ -554,10 +692,17 @@ input[type="file"] {
 
 </main>
 
+<div class="context-menu" id="contextMenu" role="menu">
+  <button id="contextPaste" type="button" role="menuitem">
+    <span>▣</span> Paste image
+  </button>
+  <div class="menu-hint">Image clipboard only</div>
+</div>
+
 <script>
 "use strict";
 
-const $ = (id) => document.getElementById(id);
+const $ = id => document.getElementById(id);
 
 const backgroundPanel = $("backgroundPanel");
 const layersPanel = $("layersPanel");
@@ -574,17 +719,22 @@ const layerList = $("layerList");
 const layerCounter = $("layerCounter");
 const saveButton = $("saveButton");
 const statusBox = $("status");
+const brushSizeInput = $("brushSize");
+const brushHardnessInput = $("brushHardness");
+const contextMenu = $("contextMenu");
+const contextPaste = $("contextPaste");
 
 let background = null;
 let layers = [];
 let nextLayerId = 1;
 let busy = false;
-
-/*
- * The last panel clicked determines where pasted images go.
- * Background is the initial target.
- */
 let pasteTarget = "background";
+let activeEraserLayerId = null;
+let drawingStroke = false;
+let strokeLayer = null;
+let lastBrushPoint = null;
+let contextMenuTarget = "background";
+let contextMenuPosition = { x: 0, y: 0 };
 
 const CORNERS = [
   { id: "tl", symbol: "↖", label: "Top left" },
@@ -636,8 +786,18 @@ function loadImageFile(file) {
 }
 
 function releaseImage(item) {
-  if (item && item.url) {
-    URL.revokeObjectURL(item.url);
+  if (!item) return;
+
+  if (item.url) URL.revokeObjectURL(item.url);
+
+  if (item.maskCanvas) {
+    item.maskCanvas.width = 1;
+    item.maskCanvas.height = 1;
+  }
+
+  if (item.renderCanvas) {
+    item.renderCanvas.width = 1;
+    item.renderCanvas.height = 1;
   }
 }
 
@@ -645,12 +805,55 @@ function updateSaveButton() {
   saveButton.disabled = !background || busy;
 }
 
+function createLayerData(loaded) {
+  const layer = {
+    ...loaded,
+    id: nextLayerId++,
+    corner: "tr",
+    visible: true,
+    opacity: 100,
+    eraserEnabled: false,
+    maskCanvas: document.createElement("canvas"),
+    renderCanvas: document.createElement("canvas")
+  };
+
+  layer.maskCanvas.width = layer.width;
+  layer.maskCanvas.height = layer.height;
+  layer.renderCanvas.width = layer.width;
+  layer.renderCanvas.height = layer.height;
+
+  const maskContext = layer.maskCanvas.getContext("2d", { alpha: true });
+  maskContext.fillStyle = "#fff";
+  maskContext.fillRect(0, 0, layer.width, layer.height);
+
+  rebuildLayerCanvas(layer);
+  return layer;
+}
+
+/*
+ * The mask begins fully opaque. Erasing reduces mask alpha.
+ * The resulting layer canvas therefore has genuine transparent pixels.
+ */
+function rebuildLayerCanvas(layer) {
+  const renderContext = layer.renderCanvas.getContext("2d", { alpha: true });
+
+  renderContext.clearRect(0, 0, layer.width, layer.height);
+  renderContext.globalCompositeOperation = "source-over";
+  renderContext.globalAlpha = 1;
+  renderContext.drawImage(layer.image, 0, 0, layer.width, layer.height);
+
+  renderContext.globalCompositeOperation = "destination-in";
+  renderContext.drawImage(layer.maskCanvas, 0, 0);
+
+  renderContext.globalCompositeOperation = "source-over";
+  renderContext.globalAlpha = 1;
+}
+
 function resetLayers() {
-  for (const layer of layers) {
-    releaseImage(layer);
-  }
+  for (const layer of layers) releaseImage(layer);
 
   layers = [];
+  activeEraserLayerId = null;
   renderLayerList();
   renderPreview();
   updateSaveButton();
@@ -673,12 +876,10 @@ async function handleBackgroundFiles(fileList) {
     background = loaded;
     releaseImage(old);
 
-    // Loading a new background resets all existing layers.
-    for (const layer of layers) {
-      releaseImage(layer);
-    }
+    for (const layer of layers) releaseImage(layer);
 
     layers = [];
+    activeEraserLayerId = null;
 
     backgroundEmpty.style.display = "none";
     previewCanvas.style.display = "block";
@@ -711,14 +912,7 @@ async function handleLayerFiles(fileList) {
   for (const file of files) {
     try {
       const loaded = await loadImageFile(file);
-
-      layers.push({
-        ...loaded,
-        id: nextLayerId++,
-        corner: "tr",
-        visible: true
-      });
-
+      layers.push(createLayerData(loaded));
       added++;
     } catch (error) {
       errors.push(file.name || "Pasted image");
@@ -731,22 +925,15 @@ async function handleLayerFiles(fileList) {
 
   if (errors.length) {
     setStatus(
-      added + " layer(s) added. Could not load: " +
-      errors.join(", ")
+      added + " layer(s) added. Could not load: " + errors.join(", ")
     );
   } else {
     setStatus(added + " layer(s) added.");
   }
 }
 
-/*
- * Extract image files from the clipboard paste event.
- * Works with copied image data when the browser exposes it
- * through ClipboardEvent.clipboardData.
- */
 function getClipboardImages(event) {
   const clipboard = event.clipboardData;
-
   if (!clipboard) return [];
 
   const files = [];
@@ -777,12 +964,82 @@ function getClipboardImages(event) {
   }
 
   if (clipboard.files) {
-    for (const file of clipboard.files) {
-      addFile(file);
-    }
+    for (const file of clipboard.files) addFile(file);
   }
 
   return files;
+}
+
+async function readClipboardImages() {
+  if (!navigator.clipboard || typeof navigator.clipboard.read !== "function") {
+    throw new Error("Clipboard image reading is unavailable here. Try Ctrl + V.");
+  }
+
+  const clipboardItems = await navigator.clipboard.read();
+  const files = [];
+
+  for (const item of clipboardItems) {
+    const imageType = item.types.find(type => type.startsWith("image/"));
+    if (!imageType) continue;
+
+    const blob = await item.getType(imageType);
+    const extension = imageType.split("/")[1] || "png";
+
+    files.push(new File(
+      [blob],
+      "Pasted image." + extension.replace("jpeg", "jpg"),
+      { type: imageType, lastModified: Date.now() }
+    ));
+  }
+
+  if (!files.length) {
+    throw new Error("No image found in the clipboard.");
+  }
+
+  return files;
+}
+
+async function pasteFromContextMenu() {
+  const target = contextMenuTarget;
+  hideContextMenu();
+
+  try {
+    const files = await readClipboardImages();
+
+    if (target === "layers") {
+      pasteTarget = "layers";
+      await handleLayerFiles(files);
+    } else {
+      pasteTarget = "background";
+      await handleBackgroundFiles(files);
+    }
+  } catch (error) {
+    setStatus(error.message || "Could not read an image from the clipboard.");
+  }
+}
+
+function showContextMenu(event, target) {
+  event.preventDefault();
+
+  contextMenuTarget = target;
+  pasteTarget = target;
+
+  const margin = 8;
+  contextMenu.style.display = "block";
+
+  const width = contextMenu.offsetWidth || 150;
+  const height = contextMenu.offsetHeight || 70;
+
+  const x = Math.max(margin, Math.min(event.clientX, window.innerWidth - width - margin));
+  const y = Math.max(margin, Math.min(event.clientY, window.innerHeight - height - margin));
+
+  contextMenu.style.left = x + "px";
+  contextMenu.style.top = y + "px";
+  contextMenuPosition = { x, y };
+}
+
+function hideContextMenu() {
+  contextMenu.style.display = "none";
 }
 
 function anchorPosition(layer, width, height) {
@@ -802,32 +1059,29 @@ function anchorPosition(layer, width, height) {
 
 function drawComposition(context, width, height) {
   context.clearRect(0, 0, width, height);
-
   if (!background) return;
 
-  context.drawImage(
-    background.image,
-    0,
-    0,
-    background.width,
-    background.height
-  );
+  context.globalCompositeOperation = "source-over";
+  context.globalAlpha = 1;
+  context.drawImage(background.image, 0, 0, background.width, background.height);
 
   for (const layer of layers) {
-    if (!layer.visible) continue;
+    if (!layer.visible || layer.opacity <= 0) continue;
 
     const pos = anchorPosition(layer, width, height);
 
-    // Keep the layer's original pixel dimensions.
-    // Any overflow beyond the background is clipped.
+    context.globalAlpha = Math.max(0, Math.min(100, layer.opacity)) / 100;
     context.drawImage(
-      layer.image,
+      layer.renderCanvas,
       pos.x,
       pos.y,
       layer.width,
       layer.height
     );
   }
+
+  context.globalAlpha = 1;
+  context.globalCompositeOperation = "source-over";
 }
 
 function renderPreview() {
@@ -837,18 +1091,15 @@ function renderPreview() {
     return;
   }
 
-  const width = background.width;
-  const height = background.height;
-
-  if (previewCanvas.width !== width) {
-    previewCanvas.width = width;
+  if (previewCanvas.width !== background.width) {
+    previewCanvas.width = background.width;
   }
 
-  if (previewCanvas.height !== height) {
-    previewCanvas.height = height;
+  if (previewCanvas.height !== background.height) {
+    previewCanvas.height = background.height;
   }
 
-  drawComposition(ctx, width, height);
+  drawComposition(ctx, background.width, background.height);
 
   previewCanvas.style.display = "block";
   backgroundEmpty.style.display = "none";
@@ -856,17 +1107,116 @@ function renderPreview() {
 
 function deleteLayer(id) {
   const index = layers.findIndex(layer => layer.id === id);
-
   if (index === -1) return;
 
   const removed = layers.splice(index, 1)[0];
-
   releaseImage(removed);
+
+  if (activeEraserLayerId === id) {
+    activeEraserLayerId = null;
+    drawingStroke = false;
+    strokeLayer = null;
+  }
+
   renderLayerList();
   renderPreview();
   updateSaveButton();
 
   setStatus(removed.name + " deleted.");
+}
+
+function makeOpacityControl(layer) {
+  const wrapper = document.createElement("div");
+  wrapper.className = "opacity-control";
+  wrapper.title = "Layer opacity (0–100%)";
+
+  const icon = document.createElement("span");
+  icon.className = "opacity-icon";
+  icon.textContent = "🏁";
+  icon.title = "Layer opacity";
+
+  const input = document.createElement("input");
+  input.className = "opacity-input";
+  input.type = "number";
+  input.min = "0";
+  input.max = "100";
+  input.step = "1";
+  input.value = String(layer.opacity);
+  input.title = "Opacity: 0–100%";
+  input.setAttribute("aria-label", "Opacity percentage for " + layer.name);
+
+  input.addEventListener("pointerdown", () => {
+    pasteTarget = "layers";
+  });
+
+  input.addEventListener("click", event => event.stopPropagation());
+
+  input.addEventListener("change", () => {
+    let value = Number(input.value);
+
+    if (!Number.isFinite(value)) value = layer.opacity;
+    value = Math.max(0, Math.min(100, Math.round(value)));
+
+    layer.opacity = value;
+    input.value = String(value);
+
+    renderPreview();
+    setStatus(layer.name + " opacity: " + value + "%.");
+  });
+
+  input.addEventListener("keydown", event => {
+    if (event.key === "Enter") input.blur();
+  });
+
+  wrapper.append(icon, input);
+  return wrapper;
+}
+
+function makeEraserToggle(layer) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "eraser-toggle" + (layer.eraserEnabled ? " active" : "");
+  button.title = layer.eraserEnabled
+    ? "Disable eraser for this layer"
+    : "Enable eraser for this layer";
+
+  button.setAttribute("aria-pressed", String(layer.eraserEnabled));
+  button.setAttribute("aria-label", button.title);
+
+  const icon = document.createElement("span");
+  icon.textContent = "🧽";
+
+  const label = document.createElement("span");
+  label.className = "eraser-label";
+  label.textContent = layer.eraserEnabled ? "ON" : "Erase";
+
+  button.append(icon, label);
+
+  button.addEventListener("click", event => {
+    event.stopPropagation();
+    pasteTarget = "layers";
+
+    layer.eraserEnabled = !layer.eraserEnabled;
+
+    if (layer.eraserEnabled) {
+      for (const other of layers) {
+        if (other.id !== layer.id) other.eraserEnabled = false;
+      }
+
+      activeEraserLayerId = layer.id;
+      setStatus(
+        "Eraser enabled for " + layer.name +
+        ". Draw over the layer on the background preview."
+      );
+    } else {
+      if (activeEraserLayerId === layer.id) activeEraserLayerId = null;
+      setStatus("Eraser disabled for " + layer.name + ".");
+    }
+
+    renderLayerList();
+  });
+
+  return button;
 }
 
 function renderLayerList() {
@@ -885,10 +1235,7 @@ function renderLayerList() {
 
   for (const layer of layers) {
     const row = document.createElement("div");
-
-    row.className = "layer-row" +
-      (layer.visible ? "" : " hidden-layer");
-
+    row.className = "layer-row" + (layer.visible ? "" : " hidden-layer");
     row.dataset.layerId = String(layer.id);
 
     const actions = document.createElement("div");
@@ -902,15 +1249,13 @@ function renderLayerList() {
     eye.setAttribute("aria-label", eye.title);
     eye.setAttribute("aria-pressed", String(layer.visible));
 
-    eye.addEventListener("click", () => {
+    eye.addEventListener("click", event => {
+      event.stopPropagation();
       pasteTarget = "layers";
       layer.visible = !layer.visible;
       renderLayerList();
       renderPreview();
-
-      setStatus(
-        layer.name + (layer.visible ? " shown." : " hidden.")
-      );
+      setStatus(layer.name + (layer.visible ? " shown." : " hidden."));
     });
 
     const removeButton = document.createElement("button");
@@ -918,12 +1263,10 @@ function renderLayerList() {
     removeButton.type = "button";
     removeButton.textContent = "×";
     removeButton.title = "Delete layer";
-    removeButton.setAttribute(
-      "aria-label",
-      "Delete " + layer.name
-    );
+    removeButton.setAttribute("aria-label", "Delete " + layer.name);
 
-    removeButton.addEventListener("click", () => {
+    removeButton.addEventListener("click", event => {
+      event.stopPropagation();
       pasteTarget = "layers";
       deleteLayer(layer.id);
     });
@@ -940,16 +1283,17 @@ function renderLayerList() {
     image.src = layer.url;
     image.alt = "";
     image.draggable = false;
-
     thumb.appendChild(image);
 
-    const controls = document.createElement("div");
-    controls.className = "corner-controls";
-    controls.setAttribute("aria-label", "Layer alignment");
+    const tools = document.createElement("div");
+    tools.className = "layer-tools";
+
+    const corners = document.createElement("div");
+    corners.className = "corner-controls";
+    corners.setAttribute("aria-label", "Layer alignment");
 
     for (const corner of CORNERS) {
       const button = document.createElement("button");
-
       button.className = "corner-button" +
         (layer.corner === corner.id ? " selected" : "");
 
@@ -957,27 +1301,26 @@ function renderLayerList() {
       button.textContent = corner.symbol;
       button.title = corner.label;
       button.dataset.corner = corner.id;
-
       button.setAttribute("aria-label", corner.label);
-      button.setAttribute(
-        "aria-pressed",
-        String(layer.corner === corner.id)
-      );
+      button.setAttribute("aria-pressed", String(layer.corner === corner.id));
 
-      button.addEventListener("click", () => {
+      button.addEventListener("click", event => {
+        event.stopPropagation();
         pasteTarget = "layers";
         layer.corner = corner.id;
-
         renderLayerList();
         renderPreview();
-
-        setStatus(
-          layer.name + " aligned: " + corner.label + "."
-        );
+        setStatus(layer.name + " aligned: " + corner.label + ".");
       });
 
-      controls.appendChild(button);
+      corners.appendChild(button);
     }
+
+    tools.append(
+      corners,
+      makeOpacityControl(layer),
+      makeEraserToggle(layer)
+    );
 
     thumb.addEventListener("click", () => {
       pasteTarget = "layers";
@@ -987,22 +1330,224 @@ function renderLayerList() {
       pasteTarget = "layers";
     });
 
-    row.append(actions, thumb, controls);
+    row.addEventListener("contextmenu", event => {
+      showContextMenu(event, "layers");
+    });
+
+    row.append(actions, thumb, tools);
     layerList.appendChild(row);
   }
 }
 
+function clamp(value, min, max) {
+  return Math.max(min, Math.min(max, value));
+}
+
+function getBrushSize() {
+  const value = Number(brushSizeInput.value);
+  return clamp(Number.isFinite(value) ? value : 40, 1, 5000);
+}
+
+function getBrushHardness() {
+  const value = Number(brushHardnessInput.value);
+  return clamp(Number.isFinite(value) ? value : 80, 0, 100);
+}
+
+/*
+ * Convert pointer coordinates to background-image pixel coordinates.
+ * This accounts for the canvas being displayed with object-fit: contain.
+ */
+function getBackgroundPoint(event) {
+  if (!background) return null;
+
+  const rect = previewCanvas.getBoundingClientRect();
+  if (!rect.width || !rect.height) return null;
+
+  const scale = Math.min(
+    rect.width / background.width,
+    rect.height / background.height
+  );
+
+  const renderedWidth = background.width * scale;
+  const renderedHeight = background.height * scale;
+  const offsetX = (rect.width - renderedWidth) / 2;
+  const offsetY = (rect.height - renderedHeight) / 2;
+
+  const x = (event.clientX - rect.left - offsetX) / scale;
+  const y = (event.clientY - rect.top - offsetY) / scale;
+
+  if (
+    x < 0 || y < 0 ||
+    x >= background.width || y >= background.height
+  ) {
+    return null;
+  }
+
+  return { x, y };
+}
+
+function pointInsideLayer(layer, backgroundPoint) {
+  const pos = anchorPosition(layer, background.width, background.height);
+
+  const x = backgroundPoint.x - pos.x;
+  const y = backgroundPoint.y - pos.y;
+
+  if (x < 0 || y < 0 || x >= layer.width || y >= layer.height) {
+    return null;
+  }
+
+  return { x, y };
+}
+
+function makeBrushGradient(context, x, y, radius, hardness) {
+  const gradient = context.createRadialGradient(x, y, 0, x, y, radius);
+  const innerStop = clamp(hardness / 100, 0, 1);
+
+  if (innerStop >= 0.999) {
+    gradient.addColorStop(0, "rgba(0,0,0,1)");
+    gradient.addColorStop(0.999, "rgba(0,0,0,1)");
+    gradient.addColorStop(1, "rgba(0,0,0,1)");
+    return gradient;
+  }
+
+  gradient.addColorStop(0, "rgba(0,0,0,1)");
+  gradient.addColorStop(innerStop, "rgba(0,0,0,1)");
+  gradient.addColorStop(1, "rgba(0,0,0,0)");
+  return gradient;
+}
+
+function eraseAt(layer, point, size, hardness) {
+  const context = layer.maskCanvas.getContext("2d", { alpha: true });
+  const radius = size / 2;
+
+  context.save();
+  context.globalCompositeOperation = "destination-out";
+  context.globalAlpha = 1;
+  context.fillStyle = makeBrushGradient(context, point.x, point.y, radius, hardness);
+  context.beginPath();
+  context.arc(point.x, point.y, radius, 0, Math.PI * 2);
+  context.fill();
+  context.restore();
+
+  rebuildLayerCanvas(layer);
+}
+
+function eraseStrokeSegment(layer, from, to, size, hardness) {
+  const distance = Math.hypot(to.x - from.x, to.y - from.y);
+  const spacing = Math.max(1, size * 0.12);
+  const steps = Math.max(1, Math.ceil(distance / spacing));
+
+  for (let i = 1; i <= steps; i++) {
+    const t = i / steps;
+    eraseAt(layer, {
+      x: from.x + (to.x - from.x) * t,
+      y: from.y + (to.y - from.y) * t
+    }, size, hardness);
+  }
+}
+
+function getActiveEraserLayer(backgroundPoint) {
+  if (activeEraserLayerId === null) return null;
+
+  const layer = layers.find(item => item.id === activeEraserLayerId);
+  if (!layer || !layer.visible || !layer.eraserEnabled) return null;
+
+  const localPoint = pointInsideLayer(layer, backgroundPoint);
+  if (!localPoint) return null;
+
+  return { layer, localPoint };
+}
+
+previewCanvas.addEventListener("pointerdown", event => {
+  if (!background || activeEraserLayerId === null) return;
+
+  const backgroundPoint = getBackgroundPoint(event);
+  if (!backgroundPoint) return;
+
+  const target = getActiveEraserLayer(backgroundPoint);
+
+  if (!target) {
+    setStatus("Move the eraser over the active layer to erase it.");
+    return;
+  }
+
+  event.preventDefault();
+  pasteTarget = "background";
+
+  drawingStroke = true;
+  strokeLayer = target.layer;
+  lastBrushPoint = target.localPoint;
+
+  eraseAt(
+    strokeLayer,
+    lastBrushPoint,
+    getBrushSize(),
+    getBrushHardness()
+  );
+
+  previewCanvas.setPointerCapture(event.pointerId);
+  renderPreview();
+});
+
+previewCanvas.addEventListener("pointermove", event => {
+  if (!drawingStroke || !strokeLayer || !lastBrushPoint) return;
+
+  const backgroundPoint = getBackgroundPoint(event);
+  if (!backgroundPoint) return;
+
+  const localPoint = pointInsideLayer(strokeLayer, backgroundPoint);
+
+  if (!localPoint) {
+    lastBrushPoint = null;
+    return;
+  }
+
+  event.preventDefault();
+
+  if (lastBrushPoint) {
+    eraseStrokeSegment(
+      strokeLayer,
+      lastBrushPoint,
+      localPoint,
+      getBrushSize(),
+      getBrushHardness()
+    );
+  } else {
+    eraseAt(
+      strokeLayer,
+      localPoint,
+      getBrushSize(),
+      getBrushHardness()
+    );
+  }
+
+  lastBrushPoint = localPoint;
+  renderPreview();
+});
+
+function finishEraserStroke() {
+  if (!drawingStroke) return;
+
+  drawingStroke = false;
+  strokeLayer = null;
+  lastBrushPoint = null;
+  renderPreview();
+  setStatus("Eraser stroke applied.");
+}
+
+previewCanvas.addEventListener("pointerup", finishEraserStroke);
+previewCanvas.addEventListener("pointercancel", finishEraserStroke);
+previewCanvas.addEventListener("lostpointercapture", finishEraserStroke);
+
+previewCanvas.addEventListener("contextmenu", event => {
+  showContextMenu(event, "background");
+});
+
 function outputFormat(name) {
-  const extension =
-    (name.match(/\.([^.]+)$/)?.[1] || "").toLowerCase();
+  const extension = (name.match(/\.([^.]+)$/)?.[1] || "").toLowerCase();
 
-  if (extension === "png") {
-    return { mime: "image/png", extension: "png" };
-  }
-
-  if (extension === "webp") {
-    return { mime: "image/webp", extension: "webp" };
-  }
+  if (extension === "png") return { mime: "image/png", extension: "png" };
+  if (extension === "webp") return { mime: "image/webp", extension: "webp" };
 
   return { mime: "image/jpeg", extension: "jpg" };
 }
@@ -1014,11 +1559,8 @@ function baseFileName(name) {
 function canvasToBlob(canvas, mime) {
   return new Promise((resolve, reject) => {
     canvas.toBlob(blob => {
-      if (blob) {
-        resolve(blob);
-      } else {
-        reject(new Error("Could not create output image."));
-      }
+      if (blob) resolve(blob);
+      else reject(new Error("Could not create output image."));
     }, mime);
   });
 }
@@ -1039,41 +1581,24 @@ async function saveComposition() {
     exportCanvas.width = background.width;
     exportCanvas.height = background.height;
 
-    const exportContext = exportCanvas.getContext("2d", {
-      alpha: true
-    });
-
-    if (!exportContext) {
-      throw new Error("Canvas is not available.");
-    }
+    const exportContext = exportCanvas.getContext("2d", { alpha: true });
+    if (!exportContext) throw new Error("Canvas is not available.");
 
     const format = outputFormat(background.name);
 
     if (format.mime === "image/jpeg") {
       exportContext.fillStyle = "#ffffff";
-      exportContext.fillRect(
-        0,
-        0,
-        background.width,
-        background.height
-      );
+      exportContext.fillRect(0, 0, background.width, background.height);
     }
 
-    drawComposition(
-      exportContext,
-      background.width,
-      background.height
-    );
+    drawComposition(exportContext, background.width, background.height);
 
     const blob = await canvasToBlob(exportCanvas, format.mime);
     downloadUrl = URL.createObjectURL(blob);
 
-    const fileName =
-      baseFileName(background.name) +
-      "_aligned." +
-      format.extension;
-
+    const fileName = baseFileName(background.name) + "_aligned." + format.extension;
     const link = document.createElement("a");
+
     link.href = downloadUrl;
     link.download = fileName;
 
@@ -1100,7 +1625,7 @@ async function saveComposition() {
   }
 }
 
-function setupDropZone(element, onFiles) {
+function setupDropZone(element, onFiles, target) {
   element.addEventListener("dragover", event => {
     event.preventDefault();
     element.classList.add("drag-over");
@@ -1116,22 +1641,19 @@ function setupDropZone(element, onFiles) {
     event.preventDefault();
     element.classList.remove("drag-over");
 
-    const files = event.dataTransfer &&
-      event.dataTransfer.files;
+    const files = event.dataTransfer && event.dataTransfer.files;
 
     if (files && files.length) {
-      if (element === backgroundZone) {
-        pasteTarget = "background";
-      } else {
-        pasteTarget = "layers";
-      }
-
+      pasteTarget = target;
       onFiles(files);
     }
   });
+
+  element.addEventListener("contextmenu", event => {
+    showContextMenu(event, target);
+  });
 }
 
-/* Remember the last panel the user interacted with. */
 backgroundPanel.addEventListener("pointerdown", () => {
   pasteTarget = "background";
 });
@@ -1143,10 +1665,7 @@ layersPanel.addEventListener("pointerdown", () => {
 /* Ctrl+V / Cmd+V: paste into the last active panel. */
 document.addEventListener("paste", event => {
   const files = getClipboardImages(event);
-
-  if (!files.length) {
-    return;
-  }
+  if (!files.length) return;
 
   event.preventDefault();
 
@@ -1163,6 +1682,8 @@ $("chooseBackground").addEventListener("click", () => {
 });
 
 backgroundZone.addEventListener("click", event => {
+  if (activeEraserLayerId !== null) return;
+
   pasteTarget = "background";
 
   if (
@@ -1212,18 +1733,37 @@ layersInput.addEventListener("change", () => {
   layersInput.value = "";
 });
 
-setupDropZone(backgroundZone, handleBackgroundFiles);
-setupDropZone(layersDrop, handleLayerFiles);
-setupDropZone(layerList, handleLayerFiles);
+contextPaste.addEventListener("click", pasteFromContextMenu);
+
+document.addEventListener("pointerdown", event => {
+  if (!contextMenu.contains(event.target)) hideContextMenu();
+});
+
+document.addEventListener("keydown", event => {
+  if (event.key === "Escape") hideContextMenu();
+});
+
+window.addEventListener("resize", hideContextMenu);
+window.addEventListener("scroll", hideContextMenu, true);
+
+setupDropZone(backgroundZone, handleBackgroundFiles, "background");
+setupDropZone(layersDrop, handleLayerFiles, "layers");
+setupDropZone(layerList, handleLayerFiles, "layers");
 
 saveButton.addEventListener("click", saveComposition);
+
+brushSizeInput.addEventListener("change", () => {
+  brushSizeInput.value = String(getBrushSize());
+});
+
+brushHardnessInput.addEventListener("change", () => {
+  brushHardnessInput.value = String(getBrushHardness());
+});
 
 window.addEventListener("beforeunload", () => {
   releaseImage(background);
 
-  for (const layer of layers) {
-    releaseImage(layer);
-  }
+  for (const layer of layers) releaseImage(layer);
 });
 
 renderLayerList();
