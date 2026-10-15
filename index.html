@@ -5,590 +5,220 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Image Aligner</title>
-
 <style>
 :root {
   color-scheme: dark;
-  --bg: #17191d;
-  --panel: #202329;
-  --panel2: #292d34;
-  --border: #393e47;
-  --text: #e8eaf0;
-  --muted: #9299a6;
-  --accent: #79a9ff;
-  --active: #304565;
+  --bg:#17191d; --panel:#202329; --panel2:#292d34;
+  --border:#393e47; --text:#e8eaf0; --muted:#9299a6;
+  --accent:#79a9ff; --active:#304565;
 }
-
-* { box-sizing: border-box; }
-
-html {
-  min-height: 100%;
-  background: var(--bg);
-}
-
+* { box-sizing:border-box; }
+html { min-height:100%; background:var(--bg); }
 body {
-  margin: 0;
-  padding: 20px 12px;
-  color: var(--text);
-  background: var(--bg);
-  font: 13px/1.45 "Segoe UI", Arial, sans-serif;
+  margin:0; padding:20px 12px; color:var(--text); background:var(--bg);
+  font:13px/1.45 "Segoe UI",Arial,sans-serif;
 }
-
-button, input { font: inherit; }
-button { color: inherit; cursor: pointer; }
-
-button:focus-visible,
-.drop-zone:focus-visible,
-.layers-drop:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
+button,input { font:inherit; }
+button { color:inherit; cursor:pointer; }
+button:focus-visible,.drop-zone:focus-visible,.layers-drop:focus-visible {
+  outline:2px solid var(--accent); outline-offset:2px;
 }
-
-.app {
-  width: 100%;
-  max-width: 600px;
-  margin: 0 auto;
-}
-
-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin: 0 0 14px;
-}
-
-h1 {
-  margin: 0;
-  font-size: 20px;
-  font-weight: 650;
-  letter-spacing: -0.4px;
-}
-
-.subtitle {
-  color: var(--muted);
-  font-size: 11px;
-  margin-top: 3px;
-}
-
+.app { width:100%; max-width:600px; margin:0 auto; }
+header { display:flex; align-items:center; justify-content:space-between; margin:0 0 14px; }
+h1 { margin:0; font-size:20px; font-weight:650; letter-spacing:-.4px; }
+.subtitle { color:var(--muted); font-size:11px; margin-top:3px; }
 .workspace {
-  display: grid;
-  grid-template-columns: minmax(0, 1.533fr) minmax(0, 0.85fr);
-  gap: 8px;
-  align-items: start;
+  display:grid; grid-template-columns:minmax(0,1.533fr) minmax(0,.85fr);
+  gap:8px; align-items:start;
 }
-
-.panel {
-  min-width: 0;
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 9px;
-  padding: 7px;
-}
-
+.panel { min-width:0; background:var(--panel); border:1px solid var(--border); border-radius:9px; padding:7px; }
 .panel-heading {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  flex-wrap: wrap;
-  gap: 5px;
-  min-height: 29px;
-  margin-bottom: 7px;
+  display:flex; align-items:center; justify-content:flex-end;
+  flex-wrap:nowrap; gap:4px; min-height:29px; margin-bottom:7px;
 }
-
-.small-button,
-.save-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  min-height: 28px;
-  padding: 4px 8px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  background: var(--panel2);
-  white-space: nowrap;
-  font-size: 11px;
+.small-button,.save-button {
+  display:inline-flex; align-items:center; justify-content:center; gap:5px;
+  min-height:28px; padding:4px 8px; border:1px solid var(--border);
+  border-radius:6px; background:var(--panel2); white-space:nowrap; font-size:11px;
 }
-
-.small-button:hover { background: #343a44; }
-
-.save-button {
-  background: #d5e4ff;
-  color: #18253a;
-  border-color: #d5e4ff;
-  font-weight: 650;
-}
-
-.save-button:hover:not(:disabled) { background: #bcd4ff; }
-
-.save-button:disabled {
-  opacity: .4;
-  cursor: not-allowed;
-}
-
+.small-button:hover { background:#343a44; }
+.save-button { background:#d5e4ff; color:#18253a; border-color:#d5e4ff; font-weight:650; }
+.save-button:hover:not(:disabled) { background:#bcd4ff; }
+.save-button:disabled { opacity:.4; cursor:not-allowed; }
 .drop-zone {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  border: 1px dashed #505763;
-  border-radius: 7px;
-  background: #191c21;
+  position:relative; display:flex; align-items:center; justify-content:center;
+  overflow:hidden; border:1px dashed #505763; border-radius:7px; background:#191c21;
 }
-
-#backgroundZone {
-  width: 100%;
-  aspect-ratio: 3 / 4;
-  min-height: 220px;
-  max-height: 530px;
-}
-
-.drop-zone.drag-over {
-  border-color: var(--accent);
-  background: #222c3b;
-}
-
+#backgroundZone { width:100%; aspect-ratio:3/4; min-height:220px; max-height:530px; }
+.drop-zone.drag-over { border-color:var(--accent); background:#222c3b; }
 #previewCanvas {
-  display: none;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  touch-action: none;
+  display:none; width:100%; height:100%; object-fit:contain;
+  touch-action:none;
 }
-
+#previewCanvas.eraser-cursor { cursor:none; }
 .empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 9px;
-  padding: 12px;
-  text-align: center;
-  color: var(--muted);
-  font-size: 11px;
+  display:flex; flex-direction:column; align-items:center; gap:9px;
+  padding:12px; text-align:center; color:var(--muted); font-size:11px;
 }
-
-.empty-icon {
-  font-size: 30px;
-  line-height: 1;
-  opacity: .75;
-}
-
+.empty-icon { font-size:30px; line-height:1; opacity:.75; }
 #backgroundName {
-  margin-top: 7px;
-  min-height: 16px;
-  overflow: hidden;
-  color: var(--muted);
-  font-size: 10px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  margin-top:7px; min-height:16px; overflow:hidden; color:var(--muted);
+  font-size:10px; text-overflow:ellipsis; white-space:nowrap;
 }
-
-.counter {
-  color: var(--muted);
-  font-size: 10px;
-  margin: 0 0 5px;
-}
-
-.layer-list {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  max-height: 472px;
-  overflow-y: auto;
-  padding-right: 1px;
-}
-
+.counter { color:var(--muted); font-size:10px; margin:0 0 5px; }
+.layer-list { display:flex; flex-direction:column; gap:4px; max-height:472px; overflow-y:auto; padding-right:1px; }
 .layer-row {
-  display: grid;
-  grid-template-columns: 20px 58px minmax(0, 1fr);
-  gap: 3px;
-  align-items: center;
-  min-width: 0;
-  min-height: 100px;
-  padding: 4px 3px;
-  border: 1px solid transparent;
-  border-radius: 6px;
-  background: #191c21;
+  display:grid; grid-template-columns:20px 58px minmax(0,1fr);
+  gap:3px; align-items:center; min-width:0; min-height:100px;
+  padding:4px 3px; border:1px solid transparent; border-radius:6px; background:#191c21;
 }
-
-.layer-row.hidden-layer { opacity: .48; }
-
-.layer-actions {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1px;
-  width: 20px;
+.layer-row.hidden-layer { opacity:.48; }
+.layer-actions { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; width:20px; }
+.eye-button,.delete-button {
+  display:flex; align-items:center; justify-content:center;
+  width:20px; height:20px; padding:0; border:0; border-radius:4px; background:transparent;
 }
-
-.eye-button,
-.delete-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  padding: 0;
-  border: 0;
-  border-radius: 4px;
-  background: transparent;
-}
-
-.eye-button {
-  color: #c5cad4;
-  font-size: 14px;
-}
-
-.eye-button:hover { background: var(--panel2); }
-
-.delete-button {
-  color: #d17b7b;
-  font-size: 16px;
-  line-height: 1;
-}
-
-.delete-button:hover {
-  background: #482b30;
-  color: #ffaaaa;
-}
-
+.eye-button { color:#c5cad4; font-size:14px; }
+.eye-button:hover { background:var(--panel2); }
+.delete-button { color:#d17b7b; font-size:16px; line-height:1; }
+.delete-button:hover { background:#482b30; color:#ffaaaa; }
 .thumb {
-  display: block;
-  width: 58px;
-  height: 54px;
-  padding: 0;
-  overflow: hidden;
-  border: 1px solid #3c424c;
-  border-radius: 4px;
-  background-color: #252932;
-  background-image:
-    linear-gradient(45deg, #30343d 25%, transparent 25%),
-    linear-gradient(-45deg, #30343d 25%, transparent 25%),
-    linear-gradient(45deg, transparent 75%, #30343d 75%),
-    linear-gradient(-45deg, transparent 75%, #30343d 75%);
-  background-size: 12px 12px;
-  background-position: 0 0, 0 6px, 6px -6px, -6px 0;
+  display:block; width:58px; height:54px; padding:0; overflow:hidden;
+  border:1px solid #3c424c; border-radius:4px; background-color:#252932;
+  background-image:linear-gradient(45deg,#30343d 25%,transparent 25%),
+    linear-gradient(-45deg,#30343d 25%,transparent 25%),
+    linear-gradient(45deg,transparent 75%,#30343d 75%),
+    linear-gradient(-45deg,transparent 75%,#30343d 75%);
+  background-size:12px 12px; background-position:0 0,0 6px,6px -6px,-6px 0;
 }
-
-.thumb img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-.layer-tools {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  justify-content: center;
-  gap: 3px;
-}
-
+.thumb img { display:block; width:100%; height:100%; object-fit:contain; }
+.layer-tools { min-width:0; display:flex; flex-direction:column; align-items:stretch; justify-content:center; gap:3px; }
 .corner-controls {
-  display: grid;
-  grid-template-columns: 22px 22px;
-  grid-template-rows: 21px 21px;
-  grid-template-areas:
-    "tl tr"
-    "bl br";
-  gap: 0;
-  justify-content: start;
-  align-content: center;
-  min-width: 0;
+  display:grid; grid-template-columns:22px 22px; grid-template-rows:21px 21px;
+  grid-template-areas:"tl tr" "bl br"; gap:0; justify-content:start; align-content:center; min-width:0;
 }
-
 .corner-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 21px;
-  padding: 0;
-  border: 1px solid transparent;
-  border-radius: 4px;
-  background: transparent;
-  color: #aab2c0;
-  font-size: 16px;
-  line-height: 1;
+  display:flex; align-items:center; justify-content:center; width:22px; height:21px;
+  padding:0; border:1px solid transparent; border-radius:4px;
+  background:transparent; color:#aab2c0; font-size:16px; line-height:1;
 }
-
-.corner-button[data-corner="tr"] { grid-area: tr; }
-.corner-button[data-corner="tl"] { grid-area: tl; }
-.corner-button[data-corner="br"] { grid-area: br; }
-.corner-button[data-corner="bl"] { grid-area: bl; }
-
-.corner-button:hover { background: #343a44; }
-
-.corner-button.selected {
-  background: var(--active);
-  border-color: #648bc3;
-  color: #fff;
-}
+.corner-button[data-corner="tr"] { grid-area:tr; }
+.corner-button[data-corner="tl"] { grid-area:tl; }
+.corner-button[data-corner="br"] { grid-area:br; }
+.corner-button[data-corner="bl"] { grid-area:bl; }
+.corner-button:hover { background:#343a44; }
+.corner-button.selected { background:var(--active); border-color:#648bc3; color:#fff; }
 
 .opacity-control {
-  display: grid;
-  grid-template-columns: 19px minmax(0, 1fr);
-  align-items: center;
-  gap: 3px;
-  width: 100%;
+  display:grid; grid-template-columns:11px 3ch; align-items:center;
+  justify-content:start; gap:2px; width:max-content; max-width:100%;
 }
-
 .opacity-icon {
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: #d5dbe6;
-  font-size: 15px;
-  line-height: 22px;
-  text-align: center;
-  cursor: default;
+  display:flex; align-items:center; justify-content:center;
+  width:11px; overflow:hidden; font-size:12px; line-height:20px;
 }
-
 .opacity-input {
-  width: 100%;
-  min-width: 0;
-  height: 23px;
-  padding: 2px 3px;
-  border: 1px solid #414752;
-  border-radius: 4px;
-  outline: none;
-  background: #242830;
-  color: var(--text);
-  font-size: 10px;
-  text-align: center;
+  display:block; width:3ch; min-width:0; height:21px; padding:1px 0;
+  border:1px solid #414752; border-radius:4px; outline:none;
+  background:#242830; color:var(--text); font-size:10px; text-align:center;
+  appearance:textfield; -moz-appearance:textfield;
 }
-
-.opacity-input:focus,
-.brush-input:focus {
-  border-color: var(--accent);
+.opacity-input::-webkit-inner-spin-button,.opacity-input::-webkit-outer-spin-button {
+  -webkit-appearance:none; margin:0;
 }
-
+.opacity-input:focus,.brush-input:focus { border-color:var(--accent); }
+.layer-controls-bottom { display:flex; align-items:center; gap:3px; min-width:0; }
 .eraser-toggle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  min-width: 0;
-  min-height: 24px;
-  padding: 2px 4px;
-  border: 1px solid #414752;
-  border-radius: 4px;
-  background: #242830;
-  color: #c6ccd7;
-  font-size: 12px;
+  display:flex; align-items:center; justify-content:center;
+  width:25px; min-width:25px; height:23px; padding:1px;
+  border:1px solid #414752; border-radius:4px;
+  background:#242830; color:#c6ccd7; font-size:13px;
 }
+.eraser-toggle:hover { background:#343a44; }
+.eraser-toggle.active { background:#513b28; border-color:#d6a15e; color:#ffe0ae; }
 
-.eraser-toggle:hover { background: #343a44; }
-
-.eraser-toggle.active {
-  background: #513b28;
-  border-color: #d6a15e;
-  color: #ffe0ae;
-}
-
-.eraser-toggle .eraser-label {
-  font-size: 9px;
-}
-
-.brush-settings {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 5px;
-  flex-wrap: wrap;
-  margin-top: 6px;
-}
-
+.brush-settings { display:flex; align-items:center; justify-content:flex-end; gap:5px; min-width:0; }
 .brush-setting {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  color: var(--muted);
-  font-size: 10px;
+  display:flex; align-items:center; justify-content:center; flex:0 0 auto;
+  width:17px; height:24px; position:relative; cursor:default;
 }
-
 .brush-input {
-  width: 48px;
-  height: 27px;
-  padding: 3px 5px;
-  border: 1px solid var(--border);
-  border-radius: 5px;
-  outline: none;
-  background: #191c21;
-  color: var(--text);
-  font-size: 11px;
-  text-align: center;
+  position:absolute; inset:0; width:100%; height:100%; opacity:0;
+  pointer-events:none;
 }
-
-.brush-unit {
-  color: var(--muted);
-  font-size: 9px;
+.brush-icon-size {
+  display:block; width:13px; height:13px; border:1.5px solid #d9deea;
+  border-radius:50%; flex:none;
 }
-
+.brush-icon-hardness {
+  display:block; width:14px; height:14px; border-radius:50%; flex:none;
+  background:radial-gradient(circle,#e7ebf3 0%,rgba(231,235,243,.72) 38%,rgba(231,235,243,0) 72%);
+}
+.brush-setting:focus-within { outline:1px solid var(--accent); border-radius:4px; }
+.brush-value {
+  width:25px; min-width:25px; height:24px; padding:2px 1px;
+  border:1px solid var(--border); border-radius:4px; outline:none;
+  background:#191c21; color:var(--text); font-size:10px; text-align:center;
+  appearance:textfield; -moz-appearance:textfield;
+}
+.brush-value::-webkit-inner-spin-button,.brush-value::-webkit-outer-spin-button {
+  -webkit-appearance:none; margin:0;
+}
 .layers-drop {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 45px;
-  margin-top: 6px;
-  padding: 6px;
-  border: 1px dashed #464d58;
-  border-radius: 6px;
-  color: var(--muted);
-  text-align: center;
-  font-size: 10px;
-  cursor: pointer;
+  display:flex; align-items:center; justify-content:center; min-height:45px;
+  margin-top:6px; padding:6px; border:1px dashed #464d58; border-radius:6px;
+  color:var(--muted); text-align:center; font-size:10px; cursor:pointer;
 }
-
-.layers-drop:hover,
-.layers-drop.drag-over {
-  border-color: var(--accent);
-  color: var(--text);
-}
-
-.layers-drop span { display: block; }
-
-.layer-empty {
-  padding: 20px 5px;
-  color: var(--muted);
-  text-align: center;
-  font-size: 10px;
-}
-
-.status {
-  min-height: 17px;
-  margin-top: 8px;
-  color: var(--muted);
-  font-size: 10px;
-  overflow-wrap: anywhere;
-}
-
-footer {
-  margin-top: 12px;
-  color: var(--muted);
-  font-size: 10px;
-  text-align: center;
-}
-
-input[type="file"] { display: none; }
-
+.layers-drop:hover,.layers-drop.drag-over { border-color:var(--accent); color:var(--text); }
+.layers-drop span { display:block; }
+.layer-empty { padding:20px 5px; color:var(--muted); text-align:center; font-size:10px; }
+.status { min-height:17px; margin-top:8px; color:var(--muted); font-size:10px; overflow-wrap:anywhere; }
+footer { margin-top:12px; color:var(--muted); font-size:10px; text-align:center; }
+input[type="file"] { display:none; }
 .context-menu {
-  position: fixed;
-  z-index: 100000;
-  display: none;
-  min-width: 145px;
-  padding: 5px;
-  border: 1px solid #454c58;
-  border-radius: 7px;
-  background: #252932;
-  box-shadow: 0 8px 24px rgba(0,0,0,.45);
+  position:fixed; z-index:100000; display:none; min-width:145px; padding:5px;
+  border:1px solid #454c58; border-radius:7px; background:#252932; box-shadow:0 8px 24px rgba(0,0,0,.45);
 }
-
 .context-menu button {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  gap: 8px;
-  padding: 8px 10px;
-  border: 0;
-  border-radius: 4px;
-  background: transparent;
-  text-align: left;
-  font-size: 12px;
+  display:flex; align-items:center; width:100%; gap:8px; padding:8px 10px;
+  border:0; border-radius:4px; background:transparent; text-align:left; font-size:12px;
 }
+.context-menu button:hover { background:#394251; }
+.context-menu .menu-hint { padding:5px 10px 3px; color:var(--muted); font-size:9px; }
 
-.context-menu button:hover {
-  background: #394251;
+#brushCursor {
+  position:fixed; z-index:99999; display:none; pointer-events:none;
+  border:1px solid rgba(255,255,255,.95); border-radius:50%;
+  box-shadow:0 0 0 1px rgba(0,0,0,.75), inset 0 0 0 1px rgba(0,0,0,.3);
+  transform:translate(-50%,-50%);
 }
-
-.context-menu .menu-hint {
-  padding: 5px 10px 3px;
-  color: var(--muted);
-  font-size: 9px;
-}
-
-@media (max-width: 520px) {
-  body { padding: 10px 5px; }
-
-  .workspace {
-    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
-    gap: 5px;
-  }
-
-  .panel { padding: 5px; }
-
-  .layer-row {
-    grid-template-columns: 18px 46px minmax(0, 1fr);
-    gap: 2px;
-    min-height: 100px;
-    padding: 3px 2px;
-  }
-
-  .layer-actions { width: 18px; }
-
-  .eye-button,
-  .delete-button {
-    width: 18px;
-    height: 19px;
-  }
-
-  .thumb {
-    width: 46px;
-    height: 46px;
-  }
-
-  .corner-controls {
-    grid-template-columns: 20px 20px;
-    grid-template-rows: 20px 20px;
-  }
-
-  .corner-button {
-    width: 20px;
-    height: 20px;
-    font-size: 14px;
-  }
-
-  .opacity-control {
-    grid-template-columns: 16px minmax(0, 1fr);
-    gap: 2px;
-  }
-
-  .opacity-icon { font-size: 13px; }
-
-  .opacity-input {
-    height: 22px;
-    padding: 2px;
-    font-size: 10px;
-  }
-
-  .eraser-toggle {
-    min-height: 22px;
-    padding: 2px;
-  }
-
-  .eraser-toggle .eraser-label { font-size: 8px; }
-
-  #backgroundZone { min-height: 200px; }
-
-  .small-button,
-  .save-button {
-    padding: 4px 5px;
-    font-size: 10px;
-  }
-
-  .brush-settings { gap: 4px; }
-  .brush-input { width: 42px; }
+@media (max-width:520px) {
+  body { padding:10px 5px; }
+  .workspace { grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr); gap:5px; }
+  .panel { padding:5px; }
+  .panel-heading { gap:3px; }
+  .layer-row { grid-template-columns:18px 46px minmax(0,1fr); gap:2px; min-height:100px; padding:3px 2px; }
+  .layer-actions { width:18px; }
+  .eye-button,.delete-button { width:18px; height:19px; }
+  .thumb { width:46px; height:46px; }
+  .corner-controls { grid-template-columns:20px 20px; grid-template-rows:20px 20px; }
+  .corner-button { width:20px; height:20px; font-size:14px; }
+  .opacity-control { grid-template-columns:10px 3ch; gap:1px; }
+  .opacity-icon { width:10px; font-size:11px; }
+  .opacity-input { height:20px; font-size:10px; }
+  .eraser-toggle { width:23px; min-width:23px; height:21px; font-size:12px; }
+  #backgroundZone { min-height:200px; }
+  .small-button,.save-button { padding:4px 5px; font-size:10px; }
+  .brush-settings { gap:2px; }
+  .brush-setting { width:14px; }
+  .brush-icon-size { width:11px; height:11px; }
+  .brush-icon-hardness { width:12px; height:12px; }
+  .brush-value { width:22px; min-width:22px; height:22px; font-size:9px; }
 }
 </style>
 </head>
-
 <body>
 <main class="app">
-
   <header>
     <div>
       <h1>Image Aligner</h1>
@@ -597,20 +227,11 @@ input[type="file"] { display: none; }
   </header>
 
   <div class="workspace">
-
     <section class="panel" id="backgroundPanel">
       <div class="panel-heading">
-        <button class="small-button" id="chooseBackground">
-          Open image
-        </button>
+        <button class="small-button" id="chooseBackground">Open image</button>
       </div>
-
-      <div class="drop-zone"
-           id="backgroundZone"
-           tabindex="0"
-           role="button"
-           aria-label="Drop, paste, or select background image">
-
+      <div class="drop-zone" id="backgroundZone" tabindex="0" role="button" aria-label="Drop, paste, or select background image">
         <div class="empty-state" id="backgroundEmpty">
           <div class="empty-icon">▧</div>
           <div>Drop background image here</div>
@@ -618,92 +239,54 @@ input[type="file"] { display: none; }
           <div>Ctrl + V to paste</div>
           <div>Right-click for Paste</div>
         </div>
-
         <canvas id="previewCanvas"></canvas>
       </div>
-
       <div id="backgroundName">No background selected</div>
-
       <input id="backgroundInput" type="file" accept="image/*">
     </section>
 
     <section class="panel" id="layersPanel">
       <div class="panel-heading">
-        <button class="save-button"
-                id="saveButton"
-                disabled
-                title="Save the composed image">
-          ↓ Save
-        </button>
-      </div>
-
-      <div class="brush-settings">
-        <label class="brush-setting" title="Eraser brush diameter in image pixels">
-          Size
-          <input class="brush-input"
-                 id="brushSize"
-                 type="number"
-                 min="1"
-                 max="5000"
-                 step="1"
-                 value="40">
-          <span class="brush-unit">px</span>
-        </label>
-
-        <label class="brush-setting" title="100 = hard edge, 0 = soft edge">
-          Hardness
-          <input class="brush-input"
-                 id="brushHardness"
-                 type="number"
-                 min="0"
-                 max="100"
-                 step="1"
-                 value="80">
-          <span class="brush-unit">%</span>
-        </label>
-      </div>
-
-      <div class="counter" id="layerCounter">0 layers</div>
-
-      <div class="layer-list" id="layerList">
-        <div class="layer-empty" id="layerEmpty">
-          Drop one or more layers here
+        <button class="save-button" id="saveButton" disabled title="Save the composed image">↓ Save</button>
+        <div class="brush-settings" aria-label="Eraser brush settings">
+          <label class="brush-setting" title="Brush size in image pixels">
+            <span class="brush-icon-size" aria-hidden="true"></span>
+            <input class="brush-input" id="brushSize" type="number" min="1" max="5000" step="1" value="40" aria-label="Brush size">
+          </label>
+          <input class="brush-value" id="brushSizeValue" type="number" min="1" max="5000" step="1" value="40" title="Brush size in pixels" aria-label="Brush size in pixels">
+          <label class="brush-setting" title="Brush hardness: 0 soft, 100 hard">
+            <span class="brush-icon-hardness" aria-hidden="true"></span>
+            <input class="brush-input" id="brushHardness" type="number" min="0" max="100" step="1" value="80" aria-label="Brush hardness">
+          </label>
+          <input class="brush-value" id="brushHardnessValue" type="number" min="0" max="100" step="1" value="80" title="Brush hardness percentage" aria-label="Brush hardness percentage">
         </div>
       </div>
 
-      <div class="layers-drop"
-           id="layersDrop"
-           tabindex="0"
-           role="button"
-           aria-label="Add or paste image layers">
+      <div class="counter" id="layerCounter">0 layers</div>
+      <div class="layer-list" id="layerList">
+        <div class="layer-empty" id="layerEmpty">Drop one or more layers here</div>
+      </div>
+      <div class="layers-drop" id="layersDrop" tabindex="0" role="button" aria-label="Add or paste image layers">
         <span>＋ Add layers<br>Drop or paste images here<br>Ctrl + V · Right-click</span>
       </div>
-
       <input id="layersInput" type="file" accept="image/*" multiple>
     </section>
-
   </div>
 
   <div class="status" id="status" role="status" aria-live="polite"></div>
-
-  <footer>
-    Images are processed locally in your browser. No image uploads.
-  </footer>
-
+  <footer>Images are processed locally in your browser. No image uploads.</footer>
 </main>
 
 <div class="context-menu" id="contextMenu" role="menu">
-  <button id="contextPaste" type="button" role="menuitem">
-    <span>▣</span> Paste image
-  </button>
+  <button id="contextPaste" type="button" role="menuitem"><span>▣</span> Paste image</button>
   <div class="menu-hint">Image clipboard only</div>
 </div>
+<div id="brushCursor" aria-hidden="true"></div>
 
 <script>
 "use strict";
 
 const $ = id => document.getElementById(id);
-
 const backgroundPanel = $("backgroundPanel");
 const layersPanel = $("layersPanel");
 const backgroundZone = $("backgroundZone");
@@ -711,8 +294,7 @@ const backgroundInput = $("backgroundInput");
 const backgroundEmpty = $("backgroundEmpty");
 const backgroundName = $("backgroundName");
 const previewCanvas = $("previewCanvas");
-const ctx = previewCanvas.getContext("2d", { alpha: true });
-
+const ctx = previewCanvas.getContext("2d", {alpha:true});
 const layersInput = $("layersInput");
 const layersDrop = $("layersDrop");
 const layerList = $("layerList");
@@ -720,9 +302,12 @@ const layerCounter = $("layerCounter");
 const saveButton = $("saveButton");
 const statusBox = $("status");
 const brushSizeInput = $("brushSize");
+const brushSizeValue = $("brushSizeValue");
 const brushHardnessInput = $("brushHardness");
+const brushHardnessValue = $("brushHardnessValue");
 const contextMenu = $("contextMenu");
 const contextPaste = $("contextPaste");
+const brushCursor = $("brushCursor");
 
 let background = null;
 let layers = [];
@@ -734,18 +319,17 @@ let drawingStroke = false;
 let strokeLayer = null;
 let lastBrushPoint = null;
 let contextMenuTarget = "background";
-let contextMenuPosition = { x: 0, y: 0 };
+let lastPointerPosition = null;
 
 const CORNERS = [
-  { id: "tl", symbol: "↖", label: "Top left" },
-  { id: "tr", symbol: "↗", label: "Top right" },
-  { id: "bl", symbol: "↙", label: "Bottom left" },
-  { id: "br", symbol: "↘", label: "Bottom right" }
+  {id:"tl",symbol:"↖",label:"Top left"},
+  {id:"tr",symbol:"↗",label:"Top right"},
+  {id:"bl",symbol:"↙",label:"Bottom left"},
+  {id:"br",symbol:"↘",label:"Bottom right"}
 ];
 
-function setStatus(message) {
-  statusBox.textContent = message;
-}
+function setStatus(message) { statusBox.textContent = message; }
+function clamp(value,min,max) { return Math.max(min,Math.min(max,value)); }
 
 function isImageFile(file) {
   return !!file && (
@@ -755,105 +339,72 @@ function isImageFile(file) {
 }
 
 function loadImageFile(file) {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve,reject) => {
     const url = URL.createObjectURL(file);
     const image = new Image();
-
     image.onload = () => {
       if (!image.naturalWidth || !image.naturalHeight) {
         URL.revokeObjectURL(url);
         reject(new Error("Image has invalid dimensions."));
         return;
       }
-
       resolve({
-        file,
-        image,
-        url,
-        name: file.name || "Pasted image",
-        width: image.naturalWidth,
-        height: image.naturalHeight
+        file,image,url,name:file.name || "Pasted image",
+        width:image.naturalWidth,height:image.naturalHeight
       });
     };
-
     image.onerror = () => {
       URL.revokeObjectURL(url);
       reject(new Error("Could not read " + (file.name || "the image")));
     };
-
     image.src = url;
   });
 }
 
 function releaseImage(item) {
   if (!item) return;
-
   if (item.url) URL.revokeObjectURL(item.url);
-
-  if (item.maskCanvas) {
-    item.maskCanvas.width = 1;
-    item.maskCanvas.height = 1;
-  }
-
-  if (item.renderCanvas) {
-    item.renderCanvas.width = 1;
-    item.renderCanvas.height = 1;
+  for (const key of ["maskCanvas","renderCanvas"]) {
+    if (item[key]) { item[key].width = 1; item[key].height = 1; }
   }
 }
 
-function updateSaveButton() {
-  saveButton.disabled = !background || busy;
-}
+function updateSaveButton() { saveButton.disabled = !background || busy; }
 
 function createLayerData(loaded) {
   const layer = {
-    ...loaded,
-    id: nextLayerId++,
-    corner: "tr",
-    visible: true,
-    opacity: 100,
-    eraserEnabled: false,
-    maskCanvas: document.createElement("canvas"),
-    renderCanvas: document.createElement("canvas")
+    ...loaded,id:nextLayerId++,corner:"tr",visible:true,opacity:100,eraserEnabled:false,
+    maskCanvas:document.createElement("canvas"),
+    renderCanvas:document.createElement("canvas")
   };
-
   layer.maskCanvas.width = layer.width;
   layer.maskCanvas.height = layer.height;
   layer.renderCanvas.width = layer.width;
   layer.renderCanvas.height = layer.height;
-
-  const maskContext = layer.maskCanvas.getContext("2d", { alpha: true });
+  const maskContext = layer.maskCanvas.getContext("2d",{alpha:true});
   maskContext.fillStyle = "#fff";
-  maskContext.fillRect(0, 0, layer.width, layer.height);
-
+  maskContext.fillRect(0,0,layer.width,layer.height);
   rebuildLayerCanvas(layer);
   return layer;
 }
 
-/*
- * The mask begins fully opaque. Erasing reduces mask alpha.
- * The resulting layer canvas therefore has genuine transparent pixels.
- */
 function rebuildLayerCanvas(layer) {
-  const renderContext = layer.renderCanvas.getContext("2d", { alpha: true });
-
-  renderContext.clearRect(0, 0, layer.width, layer.height);
+  const renderContext = layer.renderCanvas.getContext("2d",{alpha:true});
+  renderContext.clearRect(0,0,layer.width,layer.height);
   renderContext.globalCompositeOperation = "source-over";
   renderContext.globalAlpha = 1;
-  renderContext.drawImage(layer.image, 0, 0, layer.width, layer.height);
-
+  renderContext.drawImage(layer.image,0,0,layer.width,layer.height);
   renderContext.globalCompositeOperation = "destination-in";
-  renderContext.drawImage(layer.maskCanvas, 0, 0);
-
+  renderContext.drawImage(layer.maskCanvas,0,0);
   renderContext.globalCompositeOperation = "source-over";
   renderContext.globalAlpha = 1;
 }
 
 function resetLayers() {
   for (const layer of layers) releaseImage(layer);
-
   layers = [];
   activeEraserLayerId = null;
+  updateBrushCursor();
   renderLayerList();
   renderPreview();
   updateSaveButton();
@@ -861,112 +412,64 @@ function resetLayers() {
 
 async function handleBackgroundFiles(fileList) {
   const file = Array.from(fileList).find(isImageFile);
-
-  if (!file) {
-    setStatus("Please choose a supported image.");
-    return;
-  }
-
+  if (!file) { setStatus("Please choose a supported image."); return; }
   setStatus("Loading background...");
-
   try {
     const loaded = await loadImageFile(file);
     const old = background;
-
     background = loaded;
     releaseImage(old);
-
     for (const layer of layers) releaseImage(layer);
-
     layers = [];
     activeEraserLayerId = null;
-
     backgroundEmpty.style.display = "none";
     previewCanvas.style.display = "block";
     backgroundName.textContent = loaded.name;
     backgroundName.title = loaded.name;
-
     renderLayerList();
     renderPreview();
     updateSaveButton();
-
+    updateBrushCursor();
     setStatus("Background loaded. Previous layers were reset.");
-  } catch (error) {
-    setStatus(error.message);
-  }
+  } catch (error) { setStatus(error.message); }
 }
 
 async function handleLayerFiles(fileList) {
   const files = Array.from(fileList).filter(isImageFile);
-
-  if (!files.length) {
-    setStatus("Please choose one or more image layers.");
-    return;
-  }
-
+  if (!files.length) { setStatus("Please choose one or more image layers."); return; }
   setStatus("Loading layers...");
-
   let added = 0;
   const errors = [];
-
   for (const file of files) {
     try {
       const loaded = await loadImageFile(file);
       layers.push(createLayerData(loaded));
       added++;
-    } catch (error) {
-      errors.push(file.name || "Pasted image");
-    }
+    } catch (error) { errors.push(file.name || "Pasted image"); }
   }
-
   renderLayerList();
   renderPreview();
   updateSaveButton();
-
-  if (errors.length) {
-    setStatus(
-      added + " layer(s) added. Could not load: " + errors.join(", ")
-    );
-  } else {
-    setStatus(added + " layer(s) added.");
-  }
+  setStatus(errors.length
+    ? added + " layer(s) added. Could not load: " + errors.join(", ")
+    : added + " layer(s) added.");
 }
 
 function getClipboardImages(event) {
   const clipboard = event.clipboardData;
   if (!clipboard) return [];
-
-  const files = [];
-  const seen = new Set();
-
+  const files = [], seen = new Set();
   function addFile(file) {
     if (!file || !isImageFile(file)) return;
-
-    const key = [
-      file.name || "",
-      file.type || "",
-      file.size || 0,
-      file.lastModified || 0
-    ].join("|");
-
-    if (!seen.has(key)) {
-      seen.add(key);
-      files.push(file);
-    }
+    const key = [file.name||"",file.type||"",file.size||0,file.lastModified||0].join("|");
+    if (!seen.has(key)) { seen.add(key); files.push(file); }
   }
-
   if (clipboard.items) {
     for (const item of clipboard.items) {
-      if (item.kind === "file" && item.type.startsWith("image/")) {
-        addFile(item.getAsFile());
-      }
+      if (item.kind === "file" && item.type.startsWith("image/")) addFile(item.getAsFile());
     }
   }
-
-  if (clipboard.files) {
-    for (const file of clipboard.files) addFile(file);
-  }
-
+  if (clipboard.files) for (const file of clipboard.files) addFile(file);
   return files;
 }
 
@@ -974,38 +477,24 @@ async function readClipboardImages() {
   if (!navigator.clipboard || typeof navigator.clipboard.read !== "function") {
     throw new Error("Clipboard image reading is unavailable here. Try Ctrl + V.");
   }
-
   const clipboardItems = await navigator.clipboard.read();
   const files = [];
-
   for (const item of clipboardItems) {
     const imageType = item.types.find(type => type.startsWith("image/"));
     if (!imageType) continue;
-
     const blob = await item.getType(imageType);
-    const extension = imageType.split("/")[1] || "png";
-
-    files.push(new File(
-      [blob],
-      "Pasted image." + extension.replace("jpeg", "jpg"),
-      { type: imageType, lastModified: Date.now() }
-    ));
+    const extension = (imageType.split("/")[1] || "png").replace("jpeg","jpg");
+    files.push(new File([blob],"Pasted image." + extension,{type:imageType,lastModified:Date.now()}));
   }
-
-  if (!files.length) {
-    throw new Error("No image found in the clipboard.");
-  }
-
+  if (!files.length) throw new Error("No image found in the clipboard.");
   return files;
 }
 
 async function pasteFromContextMenu() {
   const target = contextMenuTarget;
   hideContextMenu();
-
   try {
     const files = await readClipboardImages();
-
     if (target === "layers") {
       pasteTarget = "layers";
       await handleLayerFiles(files);
@@ -1013,73 +502,43 @@ async function pasteFromContextMenu() {
       pasteTarget = "background";
       await handleBackgroundFiles(files);
     }
-  } catch (error) {
-    setStatus(error.message || "Could not read an image from the clipboard.");
-  }
+  } catch (error) { setStatus(error.message || "Could not read an image from the clipboard."); }
 }
 
-function showContextMenu(event, target) {
+function showContextMenu(event,target) {
   event.preventDefault();
-
   contextMenuTarget = target;
   pasteTarget = target;
-
-  const margin = 8;
   contextMenu.style.display = "block";
-
+  const margin = 8;
   const width = contextMenu.offsetWidth || 150;
   const height = contextMenu.offsetHeight || 70;
-
-  const x = Math.max(margin, Math.min(event.clientX, window.innerWidth - width - margin));
-  const y = Math.max(margin, Math.min(event.clientY, window.innerHeight - height - margin));
-
+  const x = Math.max(margin,Math.min(event.clientX,window.innerWidth-width-margin));
+  const y = Math.max(margin,Math.min(event.clientY,window.innerHeight-height-margin));
   contextMenu.style.left = x + "px";
   contextMenu.style.top = y + "px";
-  contextMenuPosition = { x, y };
+}
+function hideContextMenu() { contextMenu.style.display = "none"; }
+
+function anchorPosition(layer,width,height) {
+  let x = 0, y = 0;
+  if (layer.corner === "tr" || layer.corner === "br") x = width-layer.width;
+  if (layer.corner === "bl" || layer.corner === "br") y = height-layer.height;
+  return {x,y};
 }
 
-function hideContextMenu() {
-  contextMenu.style.display = "none";
-}
-
-function anchorPosition(layer, width, height) {
-  let x = 0;
-  let y = 0;
-
-  if (layer.corner === "tr" || layer.corner === "br") {
-    x = width - layer.width;
-  }
-
-  if (layer.corner === "bl" || layer.corner === "br") {
-    y = height - layer.height;
-  }
-
-  return { x, y };
-}
-
-function drawComposition(context, width, height) {
-  context.clearRect(0, 0, width, height);
+function drawComposition(context,width,height) {
+  context.clearRect(0,0,width,height);
   if (!background) return;
-
   context.globalCompositeOperation = "source-over";
   context.globalAlpha = 1;
-  context.drawImage(background.image, 0, 0, background.width, background.height);
-
+  context.drawImage(background.image,0,0,background.width,background.height);
   for (const layer of layers) {
     if (!layer.visible || layer.opacity <= 0) continue;
-
-    const pos = anchorPosition(layer, width, height);
-
-    context.globalAlpha = Math.max(0, Math.min(100, layer.opacity)) / 100;
-    context.drawImage(
-      layer.renderCanvas,
-      pos.x,
-      pos.y,
-      layer.width,
-      layer.height
-    );
+    const pos = anchorPosition(layer,width,height);
+    context.globalAlpha = clamp(layer.opacity,0,100)/100;
+    context.drawImage(layer.renderCanvas,pos.x,pos.y,layer.width,layer.height);
   }
-
   context.globalAlpha = 1;
   context.globalCompositeOperation = "source-over";
 }
@@ -1090,17 +549,9 @@ function renderPreview() {
     backgroundEmpty.style.display = "flex";
     return;
   }
-
-  if (previewCanvas.width !== background.width) {
-    previewCanvas.width = background.width;
-  }
-
-  if (previewCanvas.height !== background.height) {
-    previewCanvas.height = background.height;
-  }
-
-  drawComposition(ctx, background.width, background.height);
-
+  if (previewCanvas.width !== background.width) previewCanvas.width = background.width;
+  if (previewCanvas.height !== background.height) previewCanvas.height = background.height;
+  drawComposition(ctx,background.width,background.height);
   previewCanvas.style.display = "block";
   backgroundEmpty.style.display = "none";
 }
@@ -1108,20 +559,17 @@ function renderPreview() {
 function deleteLayer(id) {
   const index = layers.findIndex(layer => layer.id === id);
   if (index === -1) return;
-
-  const removed = layers.splice(index, 1)[0];
+  const removed = layers.splice(index,1)[0];
   releaseImage(removed);
-
   if (activeEraserLayerId === id) {
     activeEraserLayerId = null;
     drawingStroke = false;
     strokeLayer = null;
   }
-
   renderLayerList();
   renderPreview();
+  updateBrushCursor();
   updateSaveButton();
-
   setStatus(removed.name + " deleted.");
 }
 
@@ -1129,46 +577,33 @@ function makeOpacityControl(layer) {
   const wrapper = document.createElement("div");
   wrapper.className = "opacity-control";
   wrapper.title = "Layer opacity (0–100%)";
-
   const icon = document.createElement("span");
   icon.className = "opacity-icon";
-  icon.textContent = "🏁";
+  icon.textContent = "⚑";
   icon.title = "Layer opacity";
-
   const input = document.createElement("input");
   input.className = "opacity-input";
-  input.type = "number";
-  input.min = "0";
-  input.max = "100";
-  input.step = "1";
+  input.type = "number"; input.min = "0"; input.max = "100"; input.step = "1";
   input.value = String(layer.opacity);
   input.title = "Opacity: 0–100%";
-  input.setAttribute("aria-label", "Opacity percentage for " + layer.name);
-
-  input.addEventListener("pointerdown", () => {
-    pasteTarget = "layers";
-  });
-
-  input.addEventListener("click", event => event.stopPropagation());
-
-  input.addEventListener("change", () => {
-    let value = Number(input.value);
-
-    if (!Number.isFinite(value)) value = layer.opacity;
-    value = Math.max(0, Math.min(100, Math.round(value)));
-
-    layer.opacity = value;
-    input.value = String(value);
-
+  input.setAttribute("aria-label","Opacity percentage for " + layer.name);
+  input.addEventListener("pointerdown",() => { pasteTarget = "layers"; });
+  input.addEventListener("click",event => event.stopPropagation());
+  input.addEventListener("input",() => {
+    if (input.value.trim() === "") return;
+    const value = Number(input.value);
+    if (!Number.isFinite(value)) return;
+    layer.opacity = clamp(Math.round(value),0,100);
     renderPreview();
-    setStatus(layer.name + " opacity: " + value + "%.");
   });
-
-  input.addEventListener("keydown", event => {
-    if (event.key === "Enter") input.blur();
+  input.addEventListener("change",() => {
+    const value = clamp(Number(input.value) || 0,0,100);
+    layer.opacity = Math.round(value);
+    input.value = String(layer.opacity);
+    renderPreview();
   });
-
-  wrapper.append(icon, input);
+  input.addEventListener("keydown",event => { if (event.key === "Enter") input.blur(); });
+  wrapper.append(icon,input);
   return wrapper;
 }
 
@@ -1176,55 +611,31 @@ function makeEraserToggle(layer) {
   const button = document.createElement("button");
   button.type = "button";
   button.className = "eraser-toggle" + (layer.eraserEnabled ? " active" : "");
-  button.title = layer.eraserEnabled
-    ? "Disable eraser for this layer"
-    : "Enable eraser for this layer";
-
-  button.setAttribute("aria-pressed", String(layer.eraserEnabled));
-  button.setAttribute("aria-label", button.title);
-
-  const icon = document.createElement("span");
-  icon.textContent = "🧽";
-
-  const label = document.createElement("span");
-  label.className = "eraser-label";
-  label.textContent = layer.eraserEnabled ? "ON" : "Erase";
-
-  button.append(icon, label);
-
-  button.addEventListener("click", event => {
+  button.title = layer.eraserEnabled ? "Disable eraser" : "Enable eraser";
+  button.setAttribute("aria-pressed",String(layer.eraserEnabled));
+  button.setAttribute("aria-label",button.title);
+  button.textContent = "🧽";
+  button.addEventListener("click",event => {
     event.stopPropagation();
     pasteTarget = "layers";
-
     layer.eraserEnabled = !layer.eraserEnabled;
-
     if (layer.eraserEnabled) {
-      for (const other of layers) {
-        if (other.id !== layer.id) other.eraserEnabled = false;
-      }
-
+      for (const other of layers) if (other.id !== layer.id) other.eraserEnabled = false;
       activeEraserLayerId = layer.id;
-      setStatus(
-        "Eraser enabled for " + layer.name +
-        ". Draw over the layer on the background preview."
-      );
+      setStatus("Eraser active. Brush over this layer in the preview.");
     } else {
       if (activeEraserLayerId === layer.id) activeEraserLayerId = null;
-      setStatus("Eraser disabled for " + layer.name + ".");
+      setStatus("Eraser disabled.");
     }
-
     renderLayerList();
+    updateBrushCursor();
   });
-
   return button;
 }
 
 function renderLayerList() {
   layerList.replaceChildren();
-
-  layerCounter.textContent =
-    layers.length + (layers.length === 1 ? " layer" : " layers");
-
+  layerCounter.textContent = layers.length + (layers.length === 1 ? " layer" : " layers");
   if (!layers.length) {
     const empty = document.createElement("div");
     empty.className = "layer-empty";
@@ -1232,7 +643,6 @@ function renderLayerList() {
     layerList.appendChild(empty);
     return;
   }
-
   for (const layer of layers) {
     const row = document.createElement("div");
     row.className = "layer-row" + (layer.visible ? "" : " hidden-layer");
@@ -1240,534 +650,324 @@ function renderLayerList() {
 
     const actions = document.createElement("div");
     actions.className = "layer-actions";
-
     const eye = document.createElement("button");
-    eye.className = "eye-button";
-    eye.type = "button";
+    eye.className = "eye-button"; eye.type = "button";
     eye.textContent = layer.visible ? "◉" : "○";
     eye.title = layer.visible ? "Hide layer" : "Show layer";
-    eye.setAttribute("aria-label", eye.title);
-    eye.setAttribute("aria-pressed", String(layer.visible));
-
-    eye.addEventListener("click", event => {
-      event.stopPropagation();
-      pasteTarget = "layers";
-      layer.visible = !layer.visible;
-      renderLayerList();
-      renderPreview();
+    eye.setAttribute("aria-label",eye.title);
+    eye.setAttribute("aria-pressed",String(layer.visible));
+    eye.addEventListener("click",event => {
+      event.stopPropagation(); pasteTarget = "layers"; layer.visible = !layer.visible;
+      renderLayerList(); renderPreview(); updateBrushCursor();
       setStatus(layer.name + (layer.visible ? " shown." : " hidden."));
     });
-
     const removeButton = document.createElement("button");
-    removeButton.className = "delete-button";
-    removeButton.type = "button";
-    removeButton.textContent = "×";
-    removeButton.title = "Delete layer";
-    removeButton.setAttribute("aria-label", "Delete " + layer.name);
-
-    removeButton.addEventListener("click", event => {
-      event.stopPropagation();
-      pasteTarget = "layers";
-      deleteLayer(layer.id);
+    removeButton.className = "delete-button"; removeButton.type = "button";
+    removeButton.textContent = "×"; removeButton.title = "Delete layer";
+    removeButton.setAttribute("aria-label","Delete " + layer.name);
+    removeButton.addEventListener("click",event => {
+      event.stopPropagation(); pasteTarget = "layers"; deleteLayer(layer.id);
     });
-
-    actions.append(eye, removeButton);
+    actions.append(eye,removeButton);
 
     const thumb = document.createElement("button");
-    thumb.className = "thumb";
-    thumb.type = "button";
-    thumb.title = layer.name;
-    thumb.setAttribute("aria-label", layer.name);
-
+    thumb.className = "thumb"; thumb.type = "button";
+    thumb.title = layer.name; thumb.setAttribute("aria-label",layer.name);
     const image = document.createElement("img");
-    image.src = layer.url;
-    image.alt = "";
-    image.draggable = false;
+    image.src = layer.url; image.alt = ""; image.draggable = false;
     thumb.appendChild(image);
 
     const tools = document.createElement("div");
     tools.className = "layer-tools";
-
     const corners = document.createElement("div");
     corners.className = "corner-controls";
-    corners.setAttribute("aria-label", "Layer alignment");
-
+    corners.setAttribute("aria-label","Layer alignment");
     for (const corner of CORNERS) {
       const button = document.createElement("button");
-      button.className = "corner-button" +
-        (layer.corner === corner.id ? " selected" : "");
-
-      button.type = "button";
-      button.textContent = corner.symbol;
-      button.title = corner.label;
+      button.className = "corner-button" + (layer.corner === corner.id ? " selected" : "");
+      button.type = "button"; button.textContent = corner.symbol; button.title = corner.label;
       button.dataset.corner = corner.id;
-      button.setAttribute("aria-label", corner.label);
-      button.setAttribute("aria-pressed", String(layer.corner === corner.id));
-
-      button.addEventListener("click", event => {
-        event.stopPropagation();
-        pasteTarget = "layers";
-        layer.corner = corner.id;
-        renderLayerList();
-        renderPreview();
+      button.setAttribute("aria-label",corner.label);
+      button.setAttribute("aria-pressed",String(layer.corner === corner.id));
+      button.addEventListener("click",event => {
+        event.stopPropagation(); pasteTarget = "layers"; layer.corner = corner.id;
+        renderLayerList(); renderPreview(); updateBrushCursor();
         setStatus(layer.name + " aligned: " + corner.label + ".");
       });
-
       corners.appendChild(button);
     }
-
-    tools.append(
-      corners,
-      makeOpacityControl(layer),
-      makeEraserToggle(layer)
-    );
-
-    thumb.addEventListener("click", () => {
-      pasteTarget = "layers";
-    });
-
-    row.addEventListener("click", () => {
-      pasteTarget = "layers";
-    });
-
-    row.addEventListener("contextmenu", event => {
-      showContextMenu(event, "layers");
-    });
-
-    row.append(actions, thumb, tools);
+    const bottom = document.createElement("div");
+    bottom.className = "layer-controls-bottom";
+    bottom.append(makeOpacityControl(layer),makeEraserToggle(layer));
+    tools.append(corners,bottom);
+    thumb.addEventListener("click",() => { pasteTarget = "layers"; });
+    row.addEventListener("click",() => { pasteTarget = "layers"; });
+    row.addEventListener("contextmenu",event => showContextMenu(event,"layers"));
+    row.append(actions,thumb,tools);
     layerList.appendChild(row);
   }
 }
 
-function clamp(value, min, max) {
-  return Math.max(min, Math.min(max, value));
-}
-
 function getBrushSize() {
-  const value = Number(brushSizeInput.value);
-  return clamp(Number.isFinite(value) ? value : 40, 1, 5000);
+  const value = Number(brushSizeValue.value);
+  return clamp(Number.isFinite(value) && value > 0 ? value : 40,1,5000);
 }
-
 function getBrushHardness() {
-  const value = Number(brushHardnessInput.value);
-  return clamp(Number.isFinite(value) ? value : 80, 0, 100);
+  const value = Number(brushHardnessValue.value);
+  return clamp(Number.isFinite(value) ? value : 80,0,100);
 }
+function syncBrushInputs() {
+  brushSizeInput.value = brushSizeValue.value = String(getBrushSize());
+  brushHardnessInput.value = brushHardnessValue.value = String(getBrushHardness());
+}
+function bindBrushValue(mainInput,valueInput,min,max,fallback) {
+  const sync = source => {
+    let value = Number(source.value);
+    if (source.value.trim() === "" || !Number.isFinite(value)) value = fallback;
+    value = clamp(Math.round(value),min,max);
+    mainInput.value = valueInput.value = String(value);
+    updateBrushCursor();
+  };
+  mainInput.addEventListener("input",() => sync(mainInput));
+  valueInput.addEventListener("input",() => sync(valueInput));
+  mainInput.addEventListener("change",() => sync(mainInput));
+  valueInput.addEventListener("change",() => sync(valueInput));
+}
+bindBrushValue(brushSizeInput,brushSizeValue,1,5000,40);
+bindBrushValue(brushHardnessInput,brushHardnessValue,0,100,80);
 
-/*
- * Convert pointer coordinates to background-image pixel coordinates.
- * This accounts for the canvas being displayed with object-fit: contain.
- */
 function getBackgroundPoint(event) {
   if (!background) return null;
-
   const rect = previewCanvas.getBoundingClientRect();
   if (!rect.width || !rect.height) return null;
-
-  const scale = Math.min(
-    rect.width / background.width,
-    rect.height / background.height
-  );
-
-  const renderedWidth = background.width * scale;
-  const renderedHeight = background.height * scale;
-  const offsetX = (rect.width - renderedWidth) / 2;
-  const offsetY = (rect.height - renderedHeight) / 2;
-
-  const x = (event.clientX - rect.left - offsetX) / scale;
-  const y = (event.clientY - rect.top - offsetY) / scale;
-
-  if (
-    x < 0 || y < 0 ||
-    x >= background.width || y >= background.height
-  ) {
-    return null;
-  }
-
-  return { x, y };
+  const scale = Math.min(rect.width/background.width,rect.height/background.height);
+  const renderedWidth = background.width*scale;
+  const renderedHeight = background.height*scale;
+  const offsetX = (rect.width-renderedWidth)/2;
+  const offsetY = (rect.height-renderedHeight)/2;
+  const x = (event.clientX-rect.left-offsetX)/scale;
+  const y = (event.clientY-rect.top-offsetY)/scale;
+  if (x<0 || y<0 || x>=background.width || y>=background.height) return null;
+  return {x,y,scale,clientX:event.clientX,clientY:event.clientY};
 }
-
-function pointInsideLayer(layer, backgroundPoint) {
-  const pos = anchorPosition(layer, background.width, background.height);
-
-  const x = backgroundPoint.x - pos.x;
-  const y = backgroundPoint.y - pos.y;
-
-  if (x < 0 || y < 0 || x >= layer.width || y >= layer.height) {
-    return null;
-  }
-
-  return { x, y };
+function pointInsideLayer(layer,point) {
+  const pos = anchorPosition(layer,background.width,background.height);
+  const x = point.x-pos.x, y = point.y-pos.y;
+  if (x<0 || y<0 || x>=layer.width || y>=layer.height) return null;
+  return {x,y};
 }
-
-function makeBrushGradient(context, x, y, radius, hardness) {
-  const gradient = context.createRadialGradient(x, y, 0, x, y, radius);
-  const innerStop = clamp(hardness / 100, 0, 1);
-
-  if (innerStop >= 0.999) {
-    gradient.addColorStop(0, "rgba(0,0,0,1)");
-    gradient.addColorStop(0.999, "rgba(0,0,0,1)");
-    gradient.addColorStop(1, "rgba(0,0,0,1)");
-    return gradient;
-  }
-
-  gradient.addColorStop(0, "rgba(0,0,0,1)");
-  gradient.addColorStop(innerStop, "rgba(0,0,0,1)");
-  gradient.addColorStop(1, "rgba(0,0,0,0)");
+function makeBrushGradient(context,x,y,radius,hardness) {
+  const gradient = context.createRadialGradient(x,y,0,x,y,radius);
+  const innerStop = clamp(hardness/100,0,1);
+  gradient.addColorStop(0,"rgba(0,0,0,1)");
+  if (innerStop > 0) gradient.addColorStop(innerStop,"rgba(0,0,0,1)");
+  gradient.addColorStop(1,"rgba(0,0,0,0)");
   return gradient;
 }
-
-function eraseAt(layer, point, size, hardness) {
-  const context = layer.maskCanvas.getContext("2d", { alpha: true });
-  const radius = size / 2;
-
+function eraseAt(layer,point,size,hardness) {
+  const context = layer.maskCanvas.getContext("2d",{alpha:true});
+  const radius = size/2;
   context.save();
   context.globalCompositeOperation = "destination-out";
   context.globalAlpha = 1;
-  context.fillStyle = makeBrushGradient(context, point.x, point.y, radius, hardness);
+  context.fillStyle = makeBrushGradient(context,point.x,point.y,radius,hardness);
   context.beginPath();
-  context.arc(point.x, point.y, radius, 0, Math.PI * 2);
+  context.arc(point.x,point.y,radius,0,Math.PI*2);
   context.fill();
   context.restore();
-
-  rebuildLayerCanvas(layer);
 }
-
-function eraseStrokeSegment(layer, from, to, size, hardness) {
-  const distance = Math.hypot(to.x - from.x, to.y - from.y);
-  const spacing = Math.max(1, size * 0.12);
-  const steps = Math.max(1, Math.ceil(distance / spacing));
-
-  for (let i = 1; i <= steps; i++) {
-    const t = i / steps;
-    eraseAt(layer, {
-      x: from.x + (to.x - from.x) * t,
-      y: from.y + (to.y - from.y) * t
-    }, size, hardness);
+function eraseStrokeSegment(layer,from,to,size,hardness) {
+  const distance = Math.hypot(to.x-from.x,to.y-from.y);
+  // Lower hardness increases the gap between brush stamps, up to 30% of brush diameter.
+  const spacingFactor = (1-hardness/100)*0.30;
+  const spacing = Math.max(0.5,size*spacingFactor);
+  const steps = Math.max(1,Math.ceil(distance/spacing));
+  for (let i=1;i<=steps;i++) {
+    const t=i/steps;
+    eraseAt(layer,{
+      x:from.x+(to.x-from.x)*t,
+      y:from.y+(to.y-from.y)*t
+    },size,hardness);
   }
 }
-
-function getActiveEraserLayer(backgroundPoint) {
+function getActiveEraserLayer(point) {
   if (activeEraserLayerId === null) return null;
-
   const layer = layers.find(item => item.id === activeEraserLayerId);
   if (!layer || !layer.visible || !layer.eraserEnabled) return null;
-
-  const localPoint = pointInsideLayer(layer, backgroundPoint);
+  const localPoint = pointInsideLayer(layer,point);
   if (!localPoint) return null;
-
-  return { layer, localPoint };
+  return {layer,localPoint};
 }
-
-previewCanvas.addEventListener("pointerdown", event => {
-  if (!background || activeEraserLayerId === null) return;
-
-  const backgroundPoint = getBackgroundPoint(event);
-  if (!backgroundPoint) return;
-
-  const target = getActiveEraserLayer(backgroundPoint);
-
-  if (!target) {
-    setStatus("Move the eraser over the active layer to erase it.");
+function updateBrushCursor(event) {
+  const enabled = activeEraserLayerId !== null && !!background;
+  previewCanvas.classList.toggle("eraser-cursor",enabled);
+  if (!enabled || !lastPointerPosition) {
+    brushCursor.style.display = "none";
     return;
   }
-
+  const point = getBackgroundPoint(lastPointerPosition);
+  if (!point) { brushCursor.style.display = "none"; return; }
+  const diameter = getBrushSize()*point.scale;
+  const rect = previewCanvas.getBoundingClientRect();
+  brushCursor.style.width = Math.max(2,diameter) + "px";
+  brushCursor.style.height = Math.max(2,diameter) + "px";
+  brushCursor.style.left = point.clientX + "px";
+  brushCursor.style.top = point.clientY + "px";
+  brushCursor.style.display = "block";
+}
+previewCanvas.addEventListener("pointermove",event => {
+  lastPointerPosition = event;
+  updateBrushCursor(event);
+});
+previewCanvas.addEventListener("pointerleave",() => {
+  if (!drawingStroke) brushCursor.style.display = "none";
+});
+previewCanvas.addEventListener("pointerdown",event => {
+  if (!background || activeEraserLayerId === null) return;
+  const backgroundPoint = getBackgroundPoint(event);
+  if (!backgroundPoint) return;
+  const target = getActiveEraserLayer(backgroundPoint);
+  if (!target) { setStatus("Move the eraser over the active layer to erase it."); return; }
   event.preventDefault();
   pasteTarget = "background";
-
   drawingStroke = true;
   strokeLayer = target.layer;
   lastBrushPoint = target.localPoint;
-
-  eraseAt(
-    strokeLayer,
-    lastBrushPoint,
-    getBrushSize(),
-    getBrushHardness()
-  );
-
+  eraseAt(strokeLayer,lastBrushPoint,getBrushSize(),getBrushHardness());
   previewCanvas.setPointerCapture(event.pointerId);
   renderPreview();
+  updateBrushCursor(event);
 });
-
-previewCanvas.addEventListener("pointermove", event => {
+previewCanvas.addEventListener("pointermove",event => {
   if (!drawingStroke || !strokeLayer || !lastBrushPoint) return;
-
   const backgroundPoint = getBackgroundPoint(event);
   if (!backgroundPoint) return;
-
-  const localPoint = pointInsideLayer(strokeLayer, backgroundPoint);
-
-  if (!localPoint) {
-    lastBrushPoint = null;
-    return;
-  }
-
+  const localPoint = pointInsideLayer(strokeLayer,backgroundPoint);
+  if (!localPoint) { lastBrushPoint = null; return; }
   event.preventDefault();
-
   if (lastBrushPoint) {
-    eraseStrokeSegment(
-      strokeLayer,
-      lastBrushPoint,
-      localPoint,
-      getBrushSize(),
-      getBrushHardness()
-    );
+    eraseStrokeSegment(strokeLayer,lastBrushPoint,localPoint,getBrushSize(),getBrushHardness());
   } else {
-    eraseAt(
-      strokeLayer,
-      localPoint,
-      getBrushSize(),
-      getBrushHardness()
-    );
+    eraseAt(strokeLayer,localPoint,getBrushSize(),getBrushHardness());
   }
-
   lastBrushPoint = localPoint;
+  rebuildLayerCanvas(strokeLayer);
   renderPreview();
+  updateBrushCursor(event);
 });
-
 function finishEraserStroke() {
   if (!drawingStroke) return;
-
   drawingStroke = false;
   strokeLayer = null;
   lastBrushPoint = null;
   renderPreview();
   setStatus("Eraser stroke applied.");
 }
-
-previewCanvas.addEventListener("pointerup", finishEraserStroke);
-previewCanvas.addEventListener("pointercancel", finishEraserStroke);
-previewCanvas.addEventListener("lostpointercapture", finishEraserStroke);
-
-previewCanvas.addEventListener("contextmenu", event => {
-  showContextMenu(event, "background");
-});
+previewCanvas.addEventListener("pointerup",finishEraserStroke);
+previewCanvas.addEventListener("pointercancel",finishEraserStroke);
+previewCanvas.addEventListener("lostpointercapture",finishEraserStroke);
+previewCanvas.addEventListener("contextmenu",event => showContextMenu(event,"background"));
 
 function outputFormat(name) {
   const extension = (name.match(/\.([^.]+)$/)?.[1] || "").toLowerCase();
-
-  if (extension === "png") return { mime: "image/png", extension: "png" };
-  if (extension === "webp") return { mime: "image/webp", extension: "webp" };
-
-  return { mime: "image/jpeg", extension: "jpg" };
+  if (extension === "png") return {mime:"image/png",extension:"png"};
+  if (extension === "webp") return {mime:"image/webp",extension:"webp"};
+  return {mime:"image/jpeg",extension:"jpg"};
 }
-
-function baseFileName(name) {
-  return name.replace(/\.[^.]+$/, "");
-}
-
-function canvasToBlob(canvas, mime) {
-  return new Promise((resolve, reject) => {
-    canvas.toBlob(blob => {
-      if (blob) resolve(blob);
-      else reject(new Error("Could not create output image."));
-    }, mime);
+function baseFileName(name) { return name.replace(/\.[^.]+$/,""); }
+function canvasToBlob(canvas,mime) {
+  return new Promise((resolve,reject) => {
+    canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error("Could not create output image.")),mime);
   });
 }
-
 async function saveComposition() {
   if (!background || busy) return;
-
-  busy = true;
-  updateSaveButton();
-  saveButton.textContent = "Saving...";
+  busy = true; updateSaveButton(); saveButton.textContent = "Saving...";
   setStatus("Preparing image...");
-
-  let exportCanvas = null;
-  let downloadUrl = null;
-
+  let exportCanvas = null, downloadUrl = null;
   try {
     exportCanvas = document.createElement("canvas");
-    exportCanvas.width = background.width;
-    exportCanvas.height = background.height;
-
-    const exportContext = exportCanvas.getContext("2d", { alpha: true });
+    exportCanvas.width = background.width; exportCanvas.height = background.height;
+    const exportContext = exportCanvas.getContext("2d",{alpha:true});
     if (!exportContext) throw new Error("Canvas is not available.");
-
     const format = outputFormat(background.name);
-
     if (format.mime === "image/jpeg") {
-      exportContext.fillStyle = "#ffffff";
-      exportContext.fillRect(0, 0, background.width, background.height);
+      exportContext.fillStyle = "#fff";
+      exportContext.fillRect(0,0,background.width,background.height);
     }
-
-    drawComposition(exportContext, background.width, background.height);
-
-    const blob = await canvasToBlob(exportCanvas, format.mime);
+    drawComposition(exportContext,background.width,background.height);
+    const blob = await canvasToBlob(exportCanvas,format.mime);
     downloadUrl = URL.createObjectURL(blob);
-
     const fileName = baseFileName(background.name) + "_aligned." + format.extension;
     const link = document.createElement("a");
-
-    link.href = downloadUrl;
-    link.download = fileName;
-
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-
+    link.href = downloadUrl; link.download = fileName;
+    document.body.appendChild(link); link.click(); link.remove();
     setStatus("Saved: " + fileName);
-  } catch (error) {
-    setStatus("Save failed: " + error.message);
-  } finally {
-    if (downloadUrl) {
-      setTimeout(() => URL.revokeObjectURL(downloadUrl), 30000);
-    }
-
-    if (exportCanvas) {
-      exportCanvas.width = 1;
-      exportCanvas.height = 1;
-    }
-
-    busy = false;
-    saveButton.textContent = "↓ Save";
-    updateSaveButton();
+  } catch (error) { setStatus("Save failed: " + error.message); }
+  finally {
+    if (downloadUrl) setTimeout(() => URL.revokeObjectURL(downloadUrl),30000);
+    if (exportCanvas) { exportCanvas.width = 1; exportCanvas.height = 1; }
+    busy = false; saveButton.textContent = "↓ Save"; updateSaveButton();
   }
 }
 
-function setupDropZone(element, onFiles, target) {
-  element.addEventListener("dragover", event => {
-    event.preventDefault();
-    element.classList.add("drag-over");
+function setupDropZone(element,onFiles,target) {
+  element.addEventListener("dragover",event => { event.preventDefault(); element.classList.add("drag-over"); });
+  element.addEventListener("dragleave",event => {
+    if (!element.contains(event.relatedTarget)) element.classList.remove("drag-over");
   });
-
-  element.addEventListener("dragleave", event => {
-    if (!element.contains(event.relatedTarget)) {
-      element.classList.remove("drag-over");
-    }
-  });
-
-  element.addEventListener("drop", event => {
-    event.preventDefault();
-    element.classList.remove("drag-over");
-
+  element.addEventListener("drop",event => {
+    event.preventDefault(); element.classList.remove("drag-over");
     const files = event.dataTransfer && event.dataTransfer.files;
-
-    if (files && files.length) {
-      pasteTarget = target;
-      onFiles(files);
-    }
+    if (files && files.length) { pasteTarget = target; onFiles(files); }
   });
-
-  element.addEventListener("contextmenu", event => {
-    showContextMenu(event, target);
-  });
+  element.addEventListener("contextmenu",event => showContextMenu(event,target));
 }
-
-backgroundPanel.addEventListener("pointerdown", () => {
-  pasteTarget = "background";
-});
-
-layersPanel.addEventListener("pointerdown", () => {
-  pasteTarget = "layers";
-});
-
-/* Ctrl+V / Cmd+V: paste into the last active panel. */
-document.addEventListener("paste", event => {
+backgroundPanel.addEventListener("pointerdown",() => { pasteTarget = "background"; });
+layersPanel.addEventListener("pointerdown",() => { pasteTarget = "layers"; });
+document.addEventListener("paste",event => {
   const files = getClipboardImages(event);
   if (!files.length) return;
-
   event.preventDefault();
-
-  if (pasteTarget === "layers") {
-    handleLayerFiles(files);
-  } else {
-    handleBackgroundFiles(files);
-  }
+  if (pasteTarget === "layers") handleLayerFiles(files);
+  else handleBackgroundFiles(files);
 });
-
-$("chooseBackground").addEventListener("click", () => {
-  pasteTarget = "background";
-  backgroundInput.click();
-});
-
-backgroundZone.addEventListener("click", event => {
+$("chooseBackground").addEventListener("click",() => { pasteTarget = "background"; backgroundInput.click(); });
+backgroundZone.addEventListener("click",event => {
   if (activeEraserLayerId !== null) return;
-
   pasteTarget = "background";
-
-  if (
-    event.target === backgroundZone ||
-    event.target.closest(".empty-state")
-  ) {
-    backgroundInput.click();
-  }
+  if (event.target === backgroundZone || event.target.closest(".empty-state")) backgroundInput.click();
 });
-
-backgroundZone.addEventListener("keydown", event => {
+backgroundZone.addEventListener("keydown",event => {
   if (event.key === "Enter" || event.key === " ") {
-    event.preventDefault();
-    pasteTarget = "background";
-    backgroundInput.click();
+    event.preventDefault(); pasteTarget = "background"; backgroundInput.click();
   }
 });
-
-backgroundInput.addEventListener("change", () => {
-  if (backgroundInput.files.length) {
-    pasteTarget = "background";
-    handleBackgroundFiles(backgroundInput.files);
-  }
-
+backgroundInput.addEventListener("change",() => {
+  if (backgroundInput.files.length) { pasteTarget = "background"; handleBackgroundFiles(backgroundInput.files); }
   backgroundInput.value = "";
 });
-
-layersDrop.addEventListener("click", () => {
-  pasteTarget = "layers";
-  layersInput.click();
+layersDrop.addEventListener("click",() => { pasteTarget = "layers"; layersInput.click(); });
+layersDrop.addEventListener("keydown",event => {
+  if (event.key === "Enter" || event.key === " ") { event.preventDefault(); pasteTarget = "layers"; layersInput.click(); }
 });
-
-layersDrop.addEventListener("keydown", event => {
-  if (event.key === "Enter" || event.key === " ") {
-    event.preventDefault();
-    pasteTarget = "layers";
-    layersInput.click();
-  }
-});
-
-layersInput.addEventListener("change", () => {
-  if (layersInput.files.length) {
-    pasteTarget = "layers";
-    handleLayerFiles(layersInput.files);
-  }
-
+layersInput.addEventListener("change",() => {
+  if (layersInput.files.length) { pasteTarget = "layers"; handleLayerFiles(layersInput.files); }
   layersInput.value = "";
 });
-
-contextPaste.addEventListener("click", pasteFromContextMenu);
-
-document.addEventListener("pointerdown", event => {
-  if (!contextMenu.contains(event.target)) hideContextMenu();
-});
-
-document.addEventListener("keydown", event => {
-  if (event.key === "Escape") hideContextMenu();
-});
-
-window.addEventListener("resize", hideContextMenu);
-window.addEventListener("scroll", hideContextMenu, true);
-
-setupDropZone(backgroundZone, handleBackgroundFiles, "background");
-setupDropZone(layersDrop, handleLayerFiles, "layers");
-setupDropZone(layerList, handleLayerFiles, "layers");
-
-saveButton.addEventListener("click", saveComposition);
-
-brushSizeInput.addEventListener("change", () => {
-  brushSizeInput.value = String(getBrushSize());
-});
-
-brushHardnessInput.addEventListener("change", () => {
-  brushHardnessInput.value = String(getBrushHardness());
-});
-
-window.addEventListener("beforeunload", () => {
+contextPaste.addEventListener("click",pasteFromContextMenu);
+document.addEventListener("pointerdown",event => { if (!contextMenu.contains(event.target)) hideContextMenu(); });
+document.addEventListener("keydown",event => { if (event.key === "Escape") hideContextMenu(); });
+window.addEventListener("resize",hideContextMenu);
+window.addEventListener("scroll",hideContextMenu,true);
+saveButton.addEventListener("click",saveComposition);
+window.addEventListener("beforeunload",() => {
   releaseImage(background);
-
   for (const layer of layers) releaseImage(layer);
 });
-
 renderLayerList();
 updateSaveButton();
+syncBrushInputs();
 </script>
 </body>
 </html>
