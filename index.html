@@ -1,1 +1,982 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Image Aligner</title>
+
+<style>
+:root {
+  color-scheme: dark;
+  --bg: #17191d;
+  --panel: #202329;
+  --panel2: #292d34;
+  --border: #393e47;
+  --text: #e8eaf0;
+  --muted: #9299a6;
+  --accent: #79a9ff;
+  --active: #304565;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100%;
+  background: var(--bg);
+}
+
+body {
+  margin: 0;
+  padding: 20px 12px;
+  color: var(--text);
+  background: var(--bg);
+  font: 13px/1.45 "Segoe UI", Arial, sans-serif;
+}
+
+button, input {
+  font: inherit;
+}
+
+button {
+  color: inherit;
+  cursor: pointer;
+}
+
+button:focus-visible,
+.drop-zone:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.app {
+  width: 100%;
+  max-width: 740px;
+  margin: 0 auto;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 0 18px;
+}
+
+h1 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 650;
+  letter-spacing: -0.4px;
+}
+
+.subtitle {
+  color: var(--muted);
+  font-size: 11px;
+  margin-top: 3px;
+}
+
+.workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.9fr);
+  gap: 12px;
+  align-items: start;
+}
+
+.panel {
+  min-width: 0;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.panel-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin-bottom: 10px;
+  min-height: 30px;
+}
+
+.panel-title {
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.counter {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.drop-zone {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 1px dashed #505763;
+  border-radius: 7px;
+  background: #191c21;
+}
+
+#backgroundZone {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  min-height: 300px;
+  max-height: 530px;
+}
+
+.drop-zone.drag-over {
+  border-color: var(--accent);
+  background: #222c3b;
+}
+
+#previewCanvas {
+  display: none;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+  padding: 16px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.empty-icon {
+  font-size: 32px;
+  line-height: 1;
+  opacity: .75;
+}
+
+.small-button,
+.save-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 30px;
+  padding: 5px 9px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--panel2);
+  white-space: nowrap;
+}
+
+.small-button:hover {
+  background: #343a44;
+}
+
+.save-button {
+  background: #d5e4ff;
+  color: #18253a;
+  border-color: #d5e4ff;
+  font-weight: 650;
+}
+
+.save-button:hover:not(:disabled) {
+  background: #bcd4ff;
+}
+
+.save-button:disabled {
+  opacity: .4;
+  cursor: not-allowed;
+}
+
+#backgroundName {
+  margin-top: 9px;
+  min-height: 17px;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.layer-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  max-height: 590px;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+
+.layer-row {
+  display: grid;
+  grid-template-columns: 20px 66px 1fr;
+  gap: 3px;
+  align-items: center;
+  min-width: 0;
+  min-height: 68px;
+  padding: 3px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: #191c21;
+}
+
+.layer-row.hidden-layer {
+  opacity: .48;
+}
+
+.eye-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: #c5cad4;
+  font-size: 15px;
+}
+
+.eye-button:hover {
+  background: var(--panel2);
+}
+
+.thumb {
+  display: block;
+  width: 66px;
+  height: 60px;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid #3c424c;
+  border-radius: 4px;
+  background-color: #252932;
+  background-image:
+    linear-gradient(45deg, #30343d 25%, transparent 25%),
+    linear-gradient(-45deg, #30343d 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #30343d 75%),
+    linear-gradient(-45deg, transparent 75%, #30343d 75%);
+  background-size: 12px 12px;
+  background-position: 0 0, 0 6px, 6px -6px, -6px 0;
+}
+
+.thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.corner-controls {
+  display: grid;
+  grid-template-columns: 24px 24px;
+  grid-template-rows: 24px 24px;
+  gap: 1px;
+  justify-content: start;
+  align-content: center;
+  min-width: 0;
+  margin-left: 0;
+}
+
+.corner-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: transparent;
+  color: #aab2c0;
+  font-size: 17px;
+  line-height: 1;
+}
+
+.corner-button:hover {
+  background: #343a44;
+}
+
+.corner-button.selected {
+  background: var(--active);
+  border-color: #648bc3;
+  color: #fff;
+}
+
+.layers-drop {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 55px;
+  margin-top: 7px;
+  padding: 8px;
+  border: 1px dashed #464d58;
+  border-radius: 6px;
+  color: var(--muted);
+  text-align: center;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.layers-drop:hover,
+.layers-drop.drag-over {
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+.layers-drop span {
+  display: block;
+}
+
+.layer-empty {
+  padding: 24px 6px;
+  color: var(--muted);
+  text-align: center;
+  font-size: 11px;
+}
+
+footer {
+  margin-top: 14px;
+  color: var(--muted);
+  font-size: 10px;
+  text-align: center;
+}
+
+.status {
+  min-height: 17px;
+  margin-top: 9px;
+  color: var(--muted);
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+
+input[type="file"] {
+  display: none;
+}
+
+@media (max-width: 520px) {
+  body {
+    padding: 12px 7px;
+  }
+
+  .workspace {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr);
+    gap: 6px;
+  }
+
+  .panel {
+    padding: 6px;
+  }
+
+  .panel-heading {
+    flex-wrap: wrap;
+    margin-bottom: 7px;
+  }
+
+  .panel-title {
+    font-size: 12px;
+  }
+
+  .small-button,
+  .save-button {
+    min-height: 27px;
+    padding: 4px 6px;
+    font-size: 11px;
+  }
+
+  .layer-row {
+    grid-template-columns: 17px minmax(0, 1fr) 47px;
+    gap: 2px;
+    min-height: 57px;
+    padding: 2px;
+  }
+
+  .eye-button {
+    width: 17px;
+    font-size: 13px;
+  }
+
+  .thumb {
+    width: 100%;
+    height: 49px;
+  }
+
+  .corner-controls {
+    grid-template-columns: 22px 22px;
+    grid-template-rows: 22px 22px;
+    gap: 0;
+  }
+
+  .corner-button {
+    width: 22px;
+    height: 22px;
+    font-size: 15px;
+  }
+
+  #backgroundZone {
+    min-height: 270px;
+  }
+}
+</style>
+</head>
+
+<body>
+<main class="app">
+  <header>
+    <div>
+      <h1>Image Aligner</h1>
+      <div class="subtitle">Local image composition</div>
+    </div>
+  </header>
+
+  <div class="workspace">
+
+    <!-- BACKGROUND PANEL: LEFT -->
+    <section class="panel">
+      <div class="panel-heading">
+        <span class="panel-title">Background</span>
+        <button class="small-button" id="chooseBackground">
+          Open image
+        </button>
+      </div>
+
+      <div class="drop-zone" id="backgroundZone" tabindex="0"
+           role="button" aria-label="Drop or select background image">
+        <div class="empty-state" id="backgroundEmpty">
+          <div class="empty-icon">▧</div>
+          <div>Drop background image here</div>
+          <div>or click to browse</div>
+        </div>
+        <canvas id="previewCanvas"></canvas>
+      </div>
+
+      <div id="backgroundName">No background selected</div>
+
+      <input id="backgroundInput" type="file"
+             accept="image/*">
+    </section>
+
+    <!-- LAYERS PANEL: RIGHT -->
+    <section class="panel">
+      <div class="panel-heading">
+        <span class="panel-title">Layers</span>
+        <button class="save-button" id="saveButton" disabled
+                title="Save the composed image">
+          ↓ Save
+        </button>
+      </div>
+
+      <div class="counter" id="layerCounter">0 layers</div>
+
+      <div class="layer-list" id="layerList">
+        <div class="layer-empty" id="layerEmpty">
+          Drop one or more layers here
+        </div>
+      </div>
+
+      <div class="layers-drop" id="layersDrop" tabindex="0"
+           role="button" aria-label="Add image layers">
+        <span>＋ Add layers<br>Drop images here</span>
+      </div>
+
+      <input id="layersInput" type="file"
+             accept="image/*" multiple>
+    </section>
+  </div>
+
+  <div class="status" id="status" role="status" aria-live="polite"></div>
+
+  <footer>
+    Images are processed locally in your browser. No image uploads.
+  </footer>
+</main>
+
+<script>
+"use strict";
+
+const $ = (id) => document.getElementById(id);
+
+const backgroundZone = $("backgroundZone");
+const backgroundInput = $("backgroundInput");
+const backgroundEmpty = $("backgroundEmpty");
+const backgroundName = $("backgroundName");
+const previewCanvas = $("previewCanvas");
+const ctx = previewCanvas.getContext("2d", {
+  alpha: true
+});
+
+const layersInput = $("layersInput");
+const layersDrop = $("layersDrop");
+const layerList = $("layerList");
+const layerEmpty = $("layerEmpty");
+const layerCounter = $("layerCounter");
+const saveButton = $("saveButton");
+const statusBox = $("status");
+
+let background = null;
+let layers = [];
+let nextLayerId = 1;
+let busy = false;
+
+const CORNERS = [
+  { id: "tr", symbol: "↗", label: "Top right" },
+  { id: "tl", symbol: "↖", label: "Top left" },
+  { id: "br", symbol: "↘", label: "Bottom right" },
+  { id: "bl", symbol: "↙", label: "Bottom left" }
+];
+
+function setStatus(message) {
+  statusBox.textContent = message;
+}
+
+function isImageFile(file) {
+  return !!file && (
+    file.type.startsWith("image/") ||
+    /\.(png|jpe?g|webp|gif|bmp|avif|tiff?)$/i.test(file.name)
+  );
+}
+
+function loadImageFile(file) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const image = new Image();
+
+    image.onload = () => {
+      if (!image.naturalWidth || !image.naturalHeight) {
+        URL.revokeObjectURL(url);
+        reject(new Error("Image has invalid dimensions."));
+        return;
+      }
+
+      resolve({
+        file,
+        image,
+        url,
+        name: file.name,
+        width: image.naturalWidth,
+        height: image.naturalHeight
+      });
+    };
+
+    image.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error("Could not read " + file.name));
+    };
+
+    image.src = url;
+  });
+}
+
+function releaseImage(item) {
+  if (item && item.url) {
+    URL.revokeObjectURL(item.url);
+  }
+}
+
+async function handleBackgroundFiles(fileList) {
+  const file = Array.from(fileList).find(isImageFile);
+  if (!file) {
+    setStatus("Please choose a supported image.");
+    return;
+  }
+
+  setStatus("Loading background...");
+
+  try {
+    const loaded = await loadImageFile(file);
+
+    const old = background;
+    background = loaded;
+    releaseImage(old);
+
+    backgroundEmpty.style.display = "none";
+    previewCanvas.style.display = "block";
+    backgroundName.textContent = loaded.name;
+    backgroundName.title = loaded.name;
+
+    renderPreview();
+    updateSaveButton();
+    setStatus("Background loaded.");
+  } catch (error) {
+    setStatus(error.message);
+  }
+}
+
+async function handleLayerFiles(fileList) {
+  const files = Array.from(fileList).filter(isImageFile);
+
+  if (!files.length) {
+    setStatus("Please choose one or more image layers.");
+    return;
+  }
+
+  setStatus("Loading layers...");
+
+  let added = 0;
+  const errors = [];
+
+  for (const file of files) {
+    try {
+      const loaded = await loadImageFile(file);
+
+      layers.push({
+        ...loaded,
+        id: nextLayerId++,
+        corner: "tr",
+        visible: true
+      });
+
+      added++;
+    } catch (error) {
+      errors.push(file.name);
+    }
+  }
+
+  renderLayerList();
+  renderPreview();
+  updateSaveButton();
+
+  if (errors.length) {
+    setStatus(
+      added + " layer(s) added. Could not load: " +
+      errors.join(", ")
+    );
+  } else {
+    setStatus(added + " layer(s) added.");
+  }
+}
+
+function anchorPosition(layer, width, height) {
+  let x = 0;
+  let y = 0;
+
+  if (layer.corner === "tr" || layer.corner === "br") {
+    x = width - layer.width;
+  }
+
+  if (layer.corner === "bl" || layer.corner === "br") {
+    y = height - layer.height;
+  }
+
+  return { x, y };
+}
+
+function drawComposition(context, width, height) {
+  context.clearRect(0, 0, width, height);
+
+  if (!background) return;
+
+  context.drawImage(
+    background.image,
+    0, 0,
+    background.width, background.height
+  );
+
+  for (const layer of layers) {
+    if (!layer.visible) continue;
+
+    const pos = anchorPosition(
+      layer,
+      background.width,
+      background.height
+    );
+
+    // Preserve original layer pixel dimensions.
+    // Canvas clips parts extending beyond the background.
+    context.drawImage(
+      layer.image,
+      pos.x,
+      pos.y,
+      layer.width,
+      layer.height
+    );
+  }
+}
+
+function renderPreview() {
+  if (!background) {
+    previewCanvas.style.display = "none";
+    backgroundEmpty.style.display = "flex";
+    return;
+  }
+
+  const width = background.width;
+  const height = background.height;
+
+  if (previewCanvas.width !== width) {
+    previewCanvas.width = width;
+  }
+
+  if (previewCanvas.height !== height) {
+    previewCanvas.height = height;
+  }
+
+  drawComposition(ctx, width, height);
+  previewCanvas.style.display = "block";
+  backgroundEmpty.style.display = "none";
+}
+
+function renderLayerList() {
+  layerList.replaceChildren();
+
+  layerCounter.textContent =
+    layers.length + (layers.length === 1 ? " layer" : " layers");
+
+  layerEmpty.style.display = layers.length ? "none" : "block";
+
+  if (!layers.length) {
+    layerList.appendChild(layerEmpty);
+    return;
+  }
+
+  for (const layer of layers) {
+    const row = document.createElement("div");
+    row.className = "layer-row" +
+      (layer.visible ? "" : " hidden-layer");
+    row.dataset.layerId = String(layer.id);
+
+    const eye = document.createElement("button");
+    eye.className = "eye-button";
+    eye.type = "button";
+    eye.textContent = layer.visible ? "◉" : "○";
+    eye.title = layer.visible ? "Hide layer" : "Show layer";
+    eye.setAttribute("aria-label", eye.title);
+    eye.setAttribute("aria-pressed", String(layer.visible));
+
+    eye.addEventListener("click", () => {
+      layer.visible = !layer.visible;
+      renderLayerList();
+      renderPreview();
+      setStatus(
+        layer.name + (layer.visible ? " shown." : " hidden.")
+      );
+    });
+
+    const thumb = document.createElement("button");
+    thumb.className = "thumb";
+    thumb.type = "button";
+    thumb.title = layer.name;
+    thumb.setAttribute("aria-label", layer.name);
+
+    const image = document.createElement("img");
+    image.src = layer.url;
+    image.alt = "";
+    image.draggable = false;
+    thumb.appendChild(image);
+
+    const controls = document.createElement("div");
+    controls.className = "corner-controls";
+    controls.setAttribute("aria-label", "Layer alignment");
+
+    // Visual order: top-right, top-left, bottom-right, bottom-left.
+    for (const corner of CORNERS) {
+      const button = document.createElement("button");
+      button.className = "corner-button" +
+        (layer.corner === corner.id ? " selected" : "");
+      button.type = "button";
+      button.textContent = corner.symbol;
+      button.title = corner.label;
+      button.setAttribute("aria-label", corner.label);
+      button.setAttribute(
+        "aria-pressed",
+        String(layer.corner === corner.id)
+      );
+
+      button.addEventListener("click", () => {
+        layer.corner = corner.id;
+        renderLayerList();
+        renderPreview();
+        setStatus(layer.name + " aligned: " + corner.label + ".");
+      });
+
+      controls.appendChild(button);
+    }
+
+    row.append(eye, thumb, controls);
+    layerList.appendChild(row);
+  }
+}
+
+function updateSaveButton() {
+  saveButton.disabled = !background || busy;
+}
+
+function baseFileName(name) {
+  return name.replace(/\.[^.]+$/, "");
+}
+
+function outputFormat(name) {
+  const extension = (name.match(/\.([^.]+)$/)?.[1] || "")
+    .toLowerCase();
+
+  if (extension === "png") {
+    return { mime: "image/png", extension: "png" };
+  }
+
+  if (extension === "webp") {
+    return { mime: "image/webp", extension: "webp" };
+  }
+
+  // JPEG output for JPEG and formats not directly supported
+  // by canvas export.
+  return { mime: "image/jpeg", extension: "jpg" };
+}
+
+function canvasToBlob(canvas, mime) {
+  return new Promise((resolve, reject) => {
+    canvas.toBlob((blob) => {
+      if (blob) resolve(blob);
+      else reject(new Error("Could not create output image."));
+    }, mime);
+  });
+}
+
+async function saveComposition() {
+  if (!background || busy) return;
+
+  busy = true;
+  updateSaveButton();
+  saveButton.textContent = "Saving...";
+  setStatus("Preparing image...");
+
+  let exportCanvas = null;
+
+  try {
+    exportCanvas = document.createElement("canvas");
+    exportCanvas.width = background.width;
+    exportCanvas.height = background.height;
+
+    const exportContext = exportCanvas.getContext("2d", {
+      alpha: true
+    });
+
+    if (!exportContext) {
+      throw new Error("Canvas is not available.");
+    }
+
+    // JPEG does not support transparency.
+    const format = outputFormat(background.name);
+
+    if (format.mime === "image/jpeg") {
+      exportContext.fillStyle = "#ffffff";
+      exportContext.fillRect(
+        0, 0, background.width, background.height
+      );
+    }
+
+    drawComposition(
+      exportContext,
+      background.width,
+      background.height
+    );
+
+    const blob = await canvasToBlob(exportCanvas, format.mime);
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download =
+      baseFileName(background.name) + "_aligned." + format.extension;
+
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    setTimeout(() => URL.revokeObjectURL(url), 30000);
+
+    setStatus("Saved: " + link.download);
+  } catch (error) {
+    setStatus("Save failed: " + error.message);
+  } finally {
+    if (exportCanvas) {
+      exportCanvas.width = 1;
+      exportCanvas.height = 1;
+    }
+
+    busy = false;
+    saveButton.textContent = "↓ Save";
+    updateSaveButton();
+  }
+}
+
+function setupDropZone(element, onFiles) {
+  element.addEventListener("dragover", (event) => {
+    event.preventDefault();
+    element.classList.add("drag-over");
+  });
+
+  element.addEventListener("dragleave", (event) => {
+    if (!element.contains(event.relatedTarget)) {
+      element.classList.remove("drag-over");
+    }
+  });
+
+  element.addEventListener("drop", (event) => {
+    event.preventDefault();
+    element.classList.remove("drag-over");
+
+    const files = event.dataTransfer &&
+      event.dataTransfer.files;
+
+    if (files && files.length) onFiles(files);
+  });
+}
+
+$("chooseBackground").addEventListener("click", () => {
+  backgroundInput.click();
+});
+
+backgroundZone.addEventListener("click", (event) => {
+  if (event.target === backgroundZone ||
+      event.target.closest(".empty-state")) {
+    backgroundInput.click();
+  }
+});
+
+backgroundZone.addEventListener("keydown", (event) => {
+  if (event.key === "Enter" || event.key === " ") {
+    event.preventDefault();
+    backgroundInput.click();
+  }
+});
+
+backgroundInput.addEventListener("change", () => {
+  if (backgroundInput.files.length) {
+    handleBackgroundFiles(backgroundInput.files);
+  }
+  backgroundInput.value = "";
+});
+
+layersDrop.addEventListener("click", () => layersInput.click());
+
+layersDrop.addEventListener("keydown", (event) => {
+  if (event.key === "Enter" || event.key === " ") {
+    event.preventDefault();
+    layersInput.click();
+  }
+});
+
+layersInput.addEventListener("change", () => {
+  if (layersInput.files.length) {
+    handleLayerFiles(layersInput.files);
+  }
+  layersInput.value = "";
+});
+
+setupDropZone(backgroundZone, handleBackgroundFiles);
+setupDropZone(layersDrop, handleLayerFiles);
+setupDropZone(layerList, handleLayerFiles);
+
+saveButton.addEventListener("click", saveComposition);
+
+window.addEventListener("beforeunload", () => {
+  releaseImage(background);
+  for (const layer of layers) releaseImage(layer);
+});
+</script>
+</body>
+</html>
