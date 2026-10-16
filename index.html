@@ -766,8 +766,8 @@ function renderPreview() {
   previewCanvas.style.display = "block";
   backgroundEmpty.style.display = "none";
 }
-  <script>
-function cloneCanvas(source) {
+
+  function cloneCanvas(source) {
   if (!source) return null;
   const copy = document.createElement("canvas");
   copy.width = source.width || 1; copy.height = source.height || 1;
