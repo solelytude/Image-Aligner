@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Image Aligner 2.0</title>
+<title>Image Aligner 2.1</title>
 <style>
 :root {
   color-scheme: dark;
@@ -37,9 +36,40 @@ h1 { margin:0; font-size:20px; font-weight:650; letter-spacing:-.4px; }
 }
 .panel.drag-over { border-color:var(--accent); }
 .panel-heading {
-  display:flex; align-items:center; justify-content:flex-end;
-  flex-wrap:nowrap; gap:10px; min-height:29px; margin-bottom:7px;
+  display:flex; flex-direction:column; align-items:stretch; gap:6px;
+  min-height:0; margin-bottom:8px;
 }
+.layer-control-row {
+  display:flex; align-items:center; justify-content:space-between; gap:6px; min-width:0;
+}
+.layer-control-row.top-row { justify-content:space-between; }
+.layer-control-row.brush-row { justify-content:space-between; }
+.layer-control-row.tool-row { justify-content:flex-start; gap:7px; }
+.layer-control-row .save-button { order:0; margin-left:auto; }
+.layer-control-row .brush-settings { order:0; flex:1 1 auto; justify-content:space-between; gap:6px; }
+.layer-control-row .target-controls { order:0; }
+.global-layer-tools { display:flex; align-items:center; justify-content:flex-start; gap:7px; min-width:0; }
+.global-layer-tools .opacity-control { margin-right:1px; }
+.layer-active-check {
+  appearance:none; -webkit-appearance:none; display:block; width:12px; height:12px;
+  margin:0; border:1px solid #6d7583; border-radius:3px; background:#191c21;
+  cursor:pointer; flex:0 0 12px; position:relative;
+}
+.layer-active-check:checked { background:#304565; border-color:#79a9ff; }
+.layer-active-check:checked::after {
+  content:""; position:absolute; left:3px; top:0px; width:3px; height:7px;
+  border:solid #fff; border-width:0 2px 2px 0; transform:rotate(45deg);
+}
+.layer-active-check:focus-visible { outline:1px solid var(--accent); outline-offset:2px; }
+.layer-actions { flex-direction:column; gap:1px; }
+.layer-row.active-tool-layer { border-color:#648bc3; background:#202733; }
+.global-layer-tools .eraser-toggle:disabled,
+.global-layer-tools .opacity-input:disabled,
+.global-layer-tools .opacity-icon.disabled,
+.global-layer-tools .liquify-toggle:disabled { opacity:.35; cursor:not-allowed; }
+.brush-setting.pressure-disabled { opacity:.35; }
+.brush-setting.pressure-disabled .brush-icon-pressure { cursor:not-allowed; pointer-events:none; }
+.brush-value:disabled { opacity:.35; cursor:not-allowed; }
 .small-button,.save-button {
   display:inline-flex; align-items:center; justify-content:center; gap:5px;
   min-height:28px; padding:4px 8px; border:1px solid var(--border);
@@ -52,7 +82,6 @@ h1 { margin:0; font-size:20px; font-weight:650; letter-spacing:-.4px; }
 }
 .save-button:hover:not(:disabled) { background:#bcd4ff; }
 .save-button:disabled { opacity:.4; cursor:not-allowed; }
-
 .drop-zone {
   position:relative; display:flex; align-items:center; justify-content:center;
   overflow:hidden; border:1px dashed #505763; border-radius:7px; background:#191c21;
@@ -69,7 +98,6 @@ h1 { margin:0; font-size:20px; font-weight:650; letter-spacing:-.4px; }
   padding:12px; text-align:center; color:var(--muted); font-size:11px;
 }
 .empty-icon { font-size:30px; line-height:1; opacity:.75; }
-
 .background-name-row {
   display:flex; align-items:center; gap:4px; min-width:0; margin-top:7px;
 }
@@ -83,7 +111,6 @@ h1 { margin:0; font-size:20px; font-weight:650; letter-spacing:-.4px; }
   background:#242830; color:#d99a9a; font-size:15px; line-height:1;
 }
 #removeBackground:hover { background:#482b30; color:#ffaaaa; }
-
 .counter { color:var(--muted); font-size:10px; margin:0 0 5px; }
 .layer-list {
   display:flex; flex-direction:column; gap:4px; max-height:472px;
@@ -118,7 +145,6 @@ h1 { margin:0; font-size:20px; font-weight:650; letter-spacing:-.4px; }
   background-size:12px 12px; background-position:0 0,0 6px,6px -6px,-6px 0;
 }
 .thumb img { display:block; width:100%; height:100%; object-fit:contain; }
-
 .layer-tools {
   min-width:0; display:flex; flex-direction:row; align-items:center;
   justify-content:flex-start; gap:9px;
@@ -139,7 +165,6 @@ h1 { margin:0; font-size:20px; font-weight:650; letter-spacing:-.4px; }
 .corner-button[data-corner="bl"] { grid-area:bl; }
 .corner-button:hover { background:#343a44; }
 .corner-button.selected { background:var(--active); border-color:#648bc3; color:#fff; }
-
 .layer-side-controls {
   display:flex; flex:0 1 auto; flex-direction:column; align-items:center;
   justify-content:center; gap:3px; min-width:0;
@@ -174,7 +199,6 @@ h1 { margin:0; font-size:20px; font-weight:650; letter-spacing:-.4px; }
 }
 .eraser-toggle:hover { background:#343a44; }
 .eraser-toggle.active { background:#513b28; border-color:#d6a15e; color:#ffe0ae; }
-
 .brush-settings {
   order:1; display:flex; align-items:center; justify-content:flex-end;
   gap:8px; min-width:0; flex:0 1 auto;
@@ -206,8 +230,6 @@ h1 { margin:0; font-size:20px; font-weight:650; letter-spacing:-.4px; }
 .brush-value::-webkit-inner-spin-button,.brush-value::-webkit-outer-spin-button {
   -webkit-appearance:none; margin:0;
 }
-
-
 .target-controls { display:flex; align-items:center; gap:2px; flex:0 0 auto; }
 .target-button {
   min-width:25px; height:24px; padding:2px 5px; border:1px solid var(--border);
@@ -229,7 +251,7 @@ h1 { margin:0; font-size:20px; font-weight:650; letter-spacing:-.4px; }
 .liquify-toggle:hover { background:#343a44; }
 .liquify-toggle.active { background:#304565; border-color:#79a9ff; color:#fff; }
 .liquify-toggle .push-icon { font-size:21px; font-weight:900; line-height:15px; }
-\n.layers-drop {
+.layers-drop {
   display:flex; align-items:center; justify-content:center; min-height:45px;
   margin-top:6px; padding:6px; border:1px dashed #464d58; border-radius:6px;
   color:var(--muted); text-align:center; font-size:10px; cursor:pointer;
@@ -250,7 +272,6 @@ input[type="file"] { display:none; }
 }
 .context-menu button:hover { background:#394251; }
 .context-menu .menu-hint { padding:5px 10px 3px; color:var(--muted); font-size:9px; }
-
 #brushCursor {
   position:fixed; z-index:99999; display:none; pointer-events:none;
   border:1px solid rgba(255,255,255,.95); border-radius:50%;
@@ -276,7 +297,9 @@ input[type="file"] { display:none; }
   #backgroundZone { min-height:200px; }
   .small-button,.save-button { padding:4px 5px; font-size:10px; }
   .brush-settings { gap:4px; }
-  .brush-setting { flex-basis:11px; width:11px; }\n  .target-button { min-width:22px; padding:2px 3px; font-size:8px; }\n  .liquify-toggle { width:21px; height:21px; }
+  .brush-setting { flex-basis:11px; width:11px; }
+  .target-button { min-width:22px; padding:2px 3px; font-size:8px; }
+  .liquify-toggle { width:21px; height:21px; }
   .brush-icon-size { width:10px; height:10px; }
   .brush-icon-hardness { width:11px; height:11px; }
   .brush-value { flex-basis:26px; width:26px; min-width:26px; height:22px; font-size:9px; }
@@ -288,10 +311,9 @@ input[type="file"] { display:none; }
   <header>
     <div>
       <h1>Image Aligner</h1>
-      <div class="subtitle">Local image composition · v2.0</div>
+      <div class="subtitle">Local image composition · v2.1</div>
     </div>
   </header>
-
   <div class="workspace">
     <section class="panel" id="backgroundPanel">
       <div class="panel-heading">
@@ -313,33 +335,46 @@ input[type="file"] { display:none; }
       </div>
       <input id="backgroundInput" type="file" accept="image/*">
     </section>
-
     <section class="panel" id="layersPanel">
       <div class="panel-heading">
-        <div class="target-controls" role="group" aria-label="Liquify target">
-          <button class="target-button active" id="targetBackground" type="button" aria-pressed="true" title="Liquify the background">BG</button>
-          <button class="target-button" id="targetLayers" type="button" aria-pressed="false" title="Liquify the selected layer">Layer</button>
+        <div class="layer-control-row top-row">
+          <div class="target-controls" role="group" aria-label="Liquify target">
+            <button class="target-button active" id="targetBackground" type="button" aria-pressed="true" title="Liquify the background">BG</button>
+            <button class="target-button" id="targetLayers" type="button" aria-pressed="false" title="Liquify the checked layer">Layer</button>
+          </div>
+          <button class="save-button" id="saveButton" disabled title="Save the composed image">↓ Save</button>
         </div>
-        <div class="brush-settings" aria-label="Brush settings">
-          <label class="brush-setting" title="Brush diameter in preview-panel pixels">
-            <span class="brush-icon-size" aria-hidden="true"></span>
-            <input class="brush-input" id="brushSize" type="number" min="1" max="5000" step="1" value="15" aria-label="Brush size">
-          </label>
-          <input class="brush-value" id="brushSizeValue" type="number" min="1" max="5000" step="1" value="15" title="Brush diameter in preview-panel pixels" aria-label="Brush size in preview-panel pixels">
-          <label class="brush-setting" title="Brush hardness: 0 soft, 100 hard">
-            <span class="brush-icon-hardness" aria-hidden="true"></span>
-            <input class="brush-input" id="brushHardness" type="number" min="0" max="100" step="1" value="0" aria-label="Brush hardness">
-          </label>
-          <input class="brush-value" id="brushHardnessValue" type="number" min="0" max="100" step="1" value="0" title="Brush hardness percentage" aria-label="Brush hardness percentage">
-          <label class="brush-setting" title="Liquify pressure: 0–100%">
-            <span class="brush-icon-pressure" aria-hidden="true"></span>
-            <input class="brush-input" id="brushPressure" type="number" min="0" max="100" step="1" value="100" aria-label="Brush pressure">
-          </label>
-          <input class="brush-value" id="brushPressureValue" type="number" min="0" max="100" step="1" value="100" title="Brush pressure percentage" aria-label="Brush pressure percentage">
+        <div class="layer-control-row brush-row">
+          <div class="brush-settings" aria-label="Brush settings">
+            <label class="brush-setting" title="Brush diameter in preview-panel pixels">
+              <span class="brush-icon-size" aria-hidden="true"></span>
+              <input class="brush-input" id="brushSize" type="number" min="1" max="5000" step="1" value="15" aria-label="Brush size">
+            </label>
+            <input class="brush-value" id="brushSizeValue" type="number" min="1" max="5000" step="1" value="15" title="Brush diameter in preview-panel pixels" aria-label="Brush size in preview-panel pixels">
+            <label class="brush-setting" title="Brush hardness: 0 soft, 100 hard">
+              <span class="brush-icon-hardness" aria-hidden="true"></span>
+              <input class="brush-input" id="brushHardness" type="number" min="0" max="100" step="1" value="0" aria-label="Brush hardness">
+            </label>
+            <input class="brush-value" id="brushHardnessValue" type="number" min="0" max="100" step="1" value="0" title="Brush hardness percentage" aria-label="Brush hardness percentage">
+            <label class="brush-setting pressure-disabled" id="pressureSetting" title="Liquify pressure: 0–100%">
+              <span class="brush-icon-pressure" aria-hidden="true"></span>
+              <input class="brush-input" id="brushPressure" type="number" min="0" max="100" step="1" value="100" aria-label="Brush pressure" disabled>
+            </label>
+            <input class="brush-value" id="brushPressureValue" type="number" min="0" max="100" step="1" value="100" title="Brush pressure percentage" aria-label="Brush pressure percentage" disabled>
+          </div>
         </div>
-        <button class="save-button" id="saveButton" disabled title="Save the composed image">↓ Save</button>
+        <div class="layer-control-row tool-row">
+          <div class="global-layer-tools">
+            <div class="opacity-control" id="globalOpacityControl" title="Active layer opacity (0–100%)">
+              <span class="opacity-icon disabled" id="opacityIcon" title="Drag horizontally to change opacity. Hold Shift for steps of 10." aria-hidden="true"></span>
+              <input class="opacity-input" id="opacityValue" type="number" min="0" max="100" step="1" value="100" title="Opacity: 0–100%" aria-label="Opacity percentage for active layer" disabled>
+            </div>
+            <button class="eraser-toggle" id="eraserButton" type="button" title="Enable eraser for checked layer" aria-label="Enable eraser for checked layer" disabled>🧽</button>
+            <button class="liquify-toggle" id="forwardWarpButton" type="button" data-tool="forwardWarp" title="Forward Warp tool" aria-label="Forward Warp tool">☝</button>
+            <button class="liquify-toggle" id="pushLeftButton" type="button" data-tool="pushLeft" title="Push Left tool (hold Alt to reverse)" aria-label="Push Left tool (hold Alt to reverse)"><span class="push-icon">←</span></button>
+          </div>
+        </div>
       </div>
-
       <div class="counter" id="layerCounter">0 layers</div>
       <div class="layer-list" id="layerList">
         <div class="layer-empty" id="layerEmpty">Drop one or more layers here</div>
@@ -350,17 +385,14 @@ input[type="file"] { display:none; }
       <input id="layersInput" type="file" accept="image/*" multiple>
     </section>
   </div>
-
   <div class="status" id="status" role="status" aria-live="polite"></div>
   <footer>Images are processed locally in your browser. No image uploads. · Ctrl+Z Undo</footer>
 </main>
-
 <div class="context-menu" id="contextMenu" role="menu">
   <button id="contextPaste" type="button" role="menuitem"><span>▣</span> Paste image</button>
   <div class="menu-hint">Image clipboard only</div>
 </div>
 <div id="brushCursor" aria-hidden="true"></div>
-
 <script>
 "use strict";
 
@@ -436,46 +468,35 @@ function bindHorizontalDrag(element,getValue,setValue,min,max) {
 
   element.addEventListener("pointerdown",event => {
     if (event.button !== 0) return;
-
     event.preventDefault();
     event.stopPropagation();
     if (element.classList.contains("opacity-icon")) pushHistory();
-
     dragging = true;
     pointerId = event.pointerId;
     startX = event.clientX;
     startValue = getValue();
-
     try {
       element.setPointerCapture(event.pointerId);
     } catch (_) {}
   });
-
   element.addEventListener("pointermove",event => {
     if (!dragging || event.pointerId !== pointerId) return;
-
     event.preventDefault();
-
     const distance = event.clientX - startX;
     const multiplier = event.shiftKey ? 10 : 1;
     const steps = Math.round(distance / 2);
     const value = clamp(startValue + steps * multiplier,min,max);
-
     setValue(value);
   });
-
   function finishDrag(event) {
     if (!dragging) return;
     if (event && pointerId !== null && event.pointerId !== pointerId) return;
-
     dragging = false;
     pointerId = null;
   }
-
   element.addEventListener("pointerup",finishDrag);
   element.addEventListener("pointercancel",finishDrag);
   element.addEventListener("lostpointercapture",finishDrag);
-
   element.addEventListener("click",event => {
     if (event.detail > 0) event.preventDefault();
   });
@@ -558,6 +579,7 @@ function resetLayers() {
   for (const layer of layers) releaseImage(layer);
   layers = [];
   activeEraserLayerId = null;
+  selectedLayerId = null;
   drawingStroke = false;
   strokeLayer = null;
   lastBrushPoint = null;
@@ -602,6 +624,7 @@ async function handleBackgroundFiles(fileList) {
     for (const layer of layers) releaseImage(layer);
     layers = [];
     activeEraserLayerId = null;
+    selectedLayerId = null;
     drawingStroke = false;
     strokeLayer = null;
     lastBrushPoint = null;
@@ -743,8 +766,7 @@ function renderPreview() {
   previewCanvas.style.display = "block";
   backgroundEmpty.style.display = "none";
 }
-
-
+  <script>
 function cloneCanvas(source) {
   if (!source) return null;
   const copy = document.createElement("canvas");
@@ -826,36 +848,97 @@ function setLiquifyTarget(target) {
   targetLayersButton.classList.toggle("active",target === "layers");
   targetBackgroundButton.setAttribute("aria-pressed",String(target === "background"));
   targetLayersButton.setAttribute("aria-pressed",String(target === "layers"));
+  updateGlobalLayerControls();
   updateBrushCursor();
-  setStatus(target === "background" ? "Liquify target: background." : "Liquify target: selected layer.");
+  setStatus(target === "background" ? "Liquify target: background." : "Liquify target: checked layer.");
 }
 targetBackgroundButton.addEventListener("click",() => setLiquifyTarget("background"));
 targetLayersButton.addEventListener("click",() => setLiquifyTarget("layers"));
 
-function makeLiquifyToggle(tool,label,iconText,layer) {
-  const button = document.createElement("button");
-  button.type = "button"; button.className = "liquify-toggle";
-  button.dataset.tool = tool;
-  button.title = label;
-  button.setAttribute("aria-label",label);
-  if (tool === "pushLeft") {
-    const span = document.createElement("span"); span.className = "push-icon";
-    span.textContent = "←"; button.appendChild(span);
-  } else button.textContent = "☝";
-  button.classList.toggle("active",activeLiquifyTool === tool && selectedLayerId === layer.id);
-  button.setAttribute("aria-pressed",String(activeLiquifyTool === tool && selectedLayerId === layer.id));
-  button.addEventListener("click",event => {
-    event.stopPropagation(); pushHistory();
-    selectedLayerId = layer.id; liquifyTarget = "layers"; activeLiquifyTool = activeLiquifyTool === tool ? null : tool;
-    targetLayersButton.classList.toggle("active",true); targetBackgroundButton.classList.toggle("active",false);
-    targetLayersButton.setAttribute("aria-pressed","true"); targetBackgroundButton.setAttribute("aria-pressed","false");
-    activeEraserLayerId = null;
-    for (const item of layers) item.eraserEnabled = false;
-    renderLayerList(); updateBrushCursor();
-    setStatus(activeLiquifyTool ? label + " active on " + layer.name + "." : "Liquify tool disabled.");
-  });
-  return button;
+function updateGlobalLayerControls() {
+  const layer = layers.find(item => item.id === selectedLayerId) || null;
+  const hasLayer = !!layer && layer.visible;
+  const opacityInput = $("opacityValue");
+  const opacityIcon = $("opacityIcon");
+  const eraserButton = $("eraserButton");
+  opacityInput.disabled = !hasLayer;
+  opacityIcon.classList.toggle("disabled",!hasLayer);
+  opacityIcon.style.pointerEvents = hasLayer ? "auto" : "none";
+  eraserButton.disabled = !hasLayer;
+  opacityInput.value = String(layer ? layer.opacity : 100);
+  const eraserActive = !!layer && activeEraserLayerId === layer.id && layer.eraserEnabled;
+  eraserButton.classList.toggle("active",eraserActive);
+  eraserButton.setAttribute("aria-pressed",String(eraserActive));
+  eraserButton.title = eraserActive ? "Disable eraser" : "Enable eraser for checked layer";
+  eraserButton.setAttribute("aria-label",eraserButton.title);
+  $("forwardWarpButton").classList.toggle("active",activeLiquifyTool === "forwardWarp");
+  $("pushLeftButton").classList.toggle("active",activeLiquifyTool === "pushLeft");
+  $("forwardWarpButton").setAttribute("aria-pressed",String(activeLiquifyTool === "forwardWarp"));
+  $("pushLeftButton").setAttribute("aria-pressed",String(activeLiquifyTool === "pushLeft"));
+  $("pressureSetting").classList.toggle("pressure-disabled",!activeLiquifyTool);
+  brushPressureInput.disabled = !activeLiquifyTool;
+  brushPressureValue.disabled = !activeLiquifyTool;
 }
+function chooseLiquifyTool(tool) {
+  pushHistory();
+  activeLiquifyTool = activeLiquifyTool === tool ? null : tool;
+  if (activeLiquifyTool) {
+    activeEraserLayerId = null;
+    for (const layer of layers) layer.eraserEnabled = false;
+    drawingStroke = false; strokeLayer = null; lastBrushPoint = null;
+  }
+  updateGlobalLayerControls();
+  updateBrushCursor();
+  setStatus(activeLiquifyTool ? (activeLiquifyTool === "forwardWarp" ? "Forward Warp active." : "Push Left active.") : "Liquify tool disabled.");
+}
+$("forwardWarpButton").addEventListener("click",() => chooseLiquifyTool("forwardWarp"));
+$("pushLeftButton").addEventListener("click",() => chooseLiquifyTool("pushLeft"));
+$("eraserButton").addEventListener("click",() => {
+  const layer = layers.find(item => item.id === selectedLayerId);
+  if (!layer || !layer.visible) { setStatus("Check a visible layer first."); return; }
+  pushHistory();
+  const turnOn = activeEraserLayerId !== layer.id || !layer.eraserEnabled;
+  activeLiquifyTool = null;
+  for (const item of layers) item.eraserEnabled = false;
+  if (turnOn) {
+    layer.eraserEnabled = true;
+    activeEraserLayerId = layer.id;
+    setStatus("Eraser active on " + layer.name + ". Brush over it in the preview.");
+  } else {
+    activeEraserLayerId = null;
+    setStatus("Eraser disabled.");
+  }
+  updateGlobalLayerControls(); updateBrushCursor();
+});
+const opacityInput = $("opacityValue");
+opacityInput.addEventListener("focus",() => pushHistory());
+opacityInput.addEventListener("input",() => {
+  const layer = layers.find(item => item.id === selectedLayerId);
+  if (!layer || opacityInput.value.trim() === "") return;
+  const value = Number(opacityInput.value);
+  if (!Number.isFinite(value)) return;
+  layer.opacity = clamp(Math.round(value),0,100);
+  renderPreview();
+});
+opacityInput.addEventListener("change",() => {
+  const layer = layers.find(item => item.id === selectedLayerId);
+  if (!layer) return;
+  layer.opacity = clamp(Math.round(Number(opacityInput.value) || 0),0,100);
+  opacityInput.value = String(layer.opacity);
+  renderPreview();
+});
+opacityInput.addEventListener("keydown",event => { if (event.key === "Enter") opacityInput.blur(); });
+bindHorizontalDrag($("opacityIcon"),
+  () => {
+    const layer = layers.find(item => item.id === selectedLayerId);
+    return layer ? layer.opacity : 100;
+  },
+  value => {
+    const layer = layers.find(item => item.id === selectedLayerId);
+    if (!layer) return;
+    layer.opacity = value; opacityInput.value = String(value); renderPreview();
+  },0,100);
+
 function getLiquifyCanvas() {
   if (liquifyTarget === "background") return background && background.editCanvas;
   const layer = layers.find(item => item.id === selectedLayerId);
@@ -917,6 +1000,8 @@ function deleteLayer(id) {
   if (index === -1) return;
   const removed = layers.splice(index,1)[0];
   releaseImage(removed);
+  if (selectedLayerId === id) selectedLayerId = null;
+  if (activeEraserLayerId === id) activeEraserLayerId = null;
   if (activeEraserLayerId === id) {
     activeEraserLayerId = null;
     drawingStroke = false;
@@ -930,85 +1015,6 @@ function deleteLayer(id) {
   setStatus(removed.name + " deleted.");
 }
 
-function makeOpacityControl(layer) {
-  const wrapper = document.createElement("div");
-  wrapper.className = "opacity-control";
-  wrapper.title = "Layer opacity (0–100%)";
-
-  const icon = document.createElement("span");
-  icon.className = "opacity-icon";
-  icon.title = "Drag horizontally to change opacity. Hold Shift for steps of 10.";
-  icon.setAttribute("aria-hidden","true");
-
-  const input = document.createElement("input");
-  input.className = "opacity-input";
-  input.type = "number"; input.min = "0"; input.max = "100"; input.step = "1";
-  input.value = String(layer.opacity);
-  input.title = "Opacity: 0–100%";
-  input.setAttribute("aria-label","Opacity percentage for " + layer.name);
-  input.addEventListener("pointerdown",() => { pasteTarget = "layers"; });
-  input.addEventListener("click",event => event.stopPropagation());
-  input.addEventListener("input",() => {
-    if (input.value.trim() === "") return;
-    const value = Number(input.value);
-    if (!Number.isFinite(value)) return;
-    layer.opacity = clamp(Math.round(value),0,100);
-    renderPreview();
-  });
-  input.addEventListener("change",() => {
-    const value = clamp(Number(input.value) || 0,0,100);
-    layer.opacity = Math.round(value);
-    input.value = String(layer.opacity);
-    renderPreview();
-  });
-  input.addEventListener("keydown",event => { if (event.key === "Enter") input.blur(); });
-
-  bindHorizontalDrag(
-    icon,
-    () => layer.opacity,
-    value => {
-      layer.opacity = value;
-      input.value = String(value);
-      renderPreview();
-    },
-    0,
-    100
-  );
-
-  wrapper.append(icon,input);
-  return wrapper;
-}
-
-function makeEraserToggle(layer) {
-  const button = document.createElement("button");
-  button.type = "button";
-  button.className = "eraser-toggle" + (layer.eraserEnabled ? " active" : "");
-  button.title = layer.eraserEnabled ? "Disable eraser" : "Enable eraser";
-  button.setAttribute("aria-pressed",String(layer.eraserEnabled));
-  button.setAttribute("aria-label",button.title);
-  button.textContent = "🧽";
-  button.addEventListener("click",event => {
-    event.stopPropagation();
-    pushHistory();
-    pasteTarget = "layers"; selectedLayerId = layer.id; activeLiquifyTool = null; liquifyTarget = "layers";
-    targetLayersButton.classList.add("active"); targetBackgroundButton.classList.remove("active");
-    targetLayersButton.setAttribute("aria-pressed","true"); targetBackgroundButton.setAttribute("aria-pressed","false");
-    layer.eraserEnabled = !layer.eraserEnabled;
-    if (layer.eraserEnabled) {
-      activeLiquifyTool = null;
-      for (const other of layers) if (other.id !== layer.id) other.eraserEnabled = false;
-      activeEraserLayerId = layer.id;
-      setStatus("Eraser active. Brush over this layer in the preview.");
-    } else {
-      if (activeEraserLayerId === layer.id) activeEraserLayerId = null;
-      setStatus("Eraser disabled.");
-    }
-    renderLayerList();
-    updateBrushCursor();
-  });
-  return button;
-}
-
 function renderLayerList() {
   layerList.replaceChildren();
   layerCounter.textContent = layers.length + (layers.length === 1 ? " layer" : " layers");
@@ -1017,11 +1023,12 @@ function renderLayerList() {
     empty.className = "layer-empty";
     empty.textContent = "Drop one or more layers here";
     layerList.appendChild(empty);
+    updateGlobalLayerControls();
     return;
   }
   for (const layer of layers) {
     const row = document.createElement("div");
-    row.className = "layer-row" + (layer.visible ? "" : " hidden-layer") + (selectedLayerId === layer.id ? " selected-layer" : "");
+    row.className = "layer-row" + (layer.visible ? "" : " hidden-layer") + (selectedLayerId === layer.id ? " selected-layer active-tool-layer" : "");
     row.dataset.layerId = String(layer.id);
 
     const actions = document.createElement("div");
@@ -1033,9 +1040,31 @@ function renderLayerList() {
     eye.setAttribute("aria-label",eye.title);
     eye.setAttribute("aria-pressed",String(layer.visible));
     eye.addEventListener("click",event => {
-      event.stopPropagation(); pushHistory(); pasteTarget = "layers"; selectedLayerId = layer.id; layer.visible = !layer.visible;
-      renderLayerList(); renderPreview(); updateBrushCursor();
+      event.stopPropagation(); pushHistory(); pasteTarget = "layers"; layer.visible = !layer.visible;
+      if (!layer.visible && selectedLayerId === layer.id) {
+        activeEraserLayerId = null;
+        layer.eraserEnabled = false;
+      }
+      renderLayerList(); renderPreview(); updateGlobalLayerControls(); updateBrushCursor();
       setStatus(layer.name + (layer.visible ? " shown." : " hidden."));
+    });
+    const activeCheck = document.createElement("input");
+    activeCheck.type = "checkbox";
+    activeCheck.className = "layer-active-check";
+    activeCheck.checked = selectedLayerId === layer.id;
+    activeCheck.title = "Activate this layer's opacity, eraser and layer tools";
+    activeCheck.setAttribute("aria-label","Activate " + layer.name + " for layer tools");
+    activeCheck.addEventListener("click",event => event.stopPropagation());
+    activeCheck.addEventListener("change",event => {
+      pushHistory();
+      selectedLayerId = activeCheck.checked ? layer.id : null;
+      activeEraserLayerId = null;
+      for (const item of layers) item.eraserEnabled = false;
+      if (!selectedLayerId) {
+        drawingStroke = false; strokeLayer = null; lastBrushPoint = null;
+      }
+      renderLayerList(); updateGlobalLayerControls(); updateBrushCursor();
+      setStatus(selectedLayerId ? layer.name + " activated for layer tools." : "No active layer.");
     });
     const removeButton = document.createElement("button");
     removeButton.className = "delete-button"; removeButton.type = "button";
@@ -1044,7 +1073,7 @@ function renderLayerList() {
     removeButton.addEventListener("click",event => {
       event.stopPropagation(); pasteTarget = "layers"; deleteLayer(layer.id);
     });
-    actions.append(eye,removeButton);
+    actions.append(eye,activeCheck,removeButton);
 
     const thumb = document.createElement("button");
     thumb.className = "thumb"; thumb.type = "button";
@@ -1066,31 +1095,22 @@ function renderLayerList() {
       button.setAttribute("aria-label",corner.label);
       button.setAttribute("aria-pressed",String(layer.corner === corner.id));
       button.addEventListener("click",event => {
-        event.stopPropagation(); pushHistory(); pasteTarget = "layers"; selectedLayerId = layer.id; layer.corner = corner.id;
+        event.stopPropagation(); pushHistory(); pasteTarget = "layers"; layer.corner = corner.id;
         renderLayerList(); renderPreview(); updateBrushCursor();
         setStatus(layer.name + " aligned: " + corner.label + ".");
       });
       corners.appendChild(button);
     }
-    const sideControls = document.createElement("div");
-    sideControls.className = "layer-side-controls";
-    const liquifyTools = document.createElement("div");
-    liquifyTools.className = "liquify-tools";
-    liquifyTools.append(
-      makeLiquifyToggle("forwardWarp","Forward Warp tool","☝",layer),
-      makeLiquifyToggle("pushLeft","Push Left tool","←",layer)
-    );
-    sideControls.append(makeOpacityControl(layer),makeEraserToggle(layer),liquifyTools);
-    tools.append(corners,sideControls);
-    thumb.addEventListener("click",() => { pasteTarget = "layers"; selectedLayerId = layer.id; });
-    row.addEventListener("click",() => { pasteTarget = "layers"; selectedLayerId = layer.id; });
+    tools.append(corners);
+    thumb.addEventListener("click",() => { pasteTarget = "layers"; });
+    row.addEventListener("click",() => { pasteTarget = "layers"; });
     row.addEventListener("contextmenu",event => showContextMenu(event,"layers"));
     row.append(actions,thumb,tools);
     layerList.appendChild(row);
   }
+  updateGlobalLayerControls();
 }
-
-function getBrushSize() {
+  function getBrushSize() {
   const value = Number(brushSizeValue.value);
   return clamp(Number.isFinite(value) && value > 0 ? value : 15,1,5000);
 }
@@ -1203,8 +1223,6 @@ function eraseAt(layer,point,size,hardness) {
 }
 function eraseStrokeSegment(layer,from,to,size,hardness) {
   const distance = Math.hypot(to.x-from.x,to.y-from.y);
-  // At hardness 100%, stamps are nearly continuous.
-  // At hardness 0%, center-to-center spacing reaches 80% of brush diameter.
   const spacingFactor = (1-hardness/100)*0.80;
   const spacing = Math.max(0.5,size*spacingFactor);
   const steps = Math.max(1,Math.ceil(distance/spacing));
@@ -1225,7 +1243,8 @@ function getActiveEraserLayer(point) {
   return {layer,localPoint};
 }
 function updateBrushCursor() {
-  const enabled = (activeEraserLayerId !== null || !!activeLiquifyTool) && !!background;
+  const activeLayer = layers.find(item => item.id === selectedLayerId);
+  const enabled = (activeEraserLayerId !== null || !!activeLiquifyTool) && !!background && (liquifyTarget === "background" || (!!activeLayer && activeLayer.visible));
   previewCanvas.classList.toggle("eraser-cursor",enabled);
   previewCanvas.style.cursor = enabled ? "none" : "";
   if (!enabled || !lastPointerPosition) {
@@ -1234,9 +1253,6 @@ function updateBrushCursor() {
   }
   const point = getBackgroundPoint(lastPointerPosition);
   if (!point) { brushCursor.style.display = "none"; return; }
-
-  // Brush size is measured in CSS pixels in the preview panel,
-  // independently of the source image's natural dimensions.
   const diameter = getBrushSize();
   brushCursor.style.width = Math.max(2,diameter) + "px";
   brushCursor.style.height = Math.max(2,diameter) + "px";
@@ -1461,6 +1477,7 @@ window.addEventListener("beforeunload",() => {
 renderLayerList();
 updateSaveButton();
 syncBrushInputs();
+updateGlobalLayerControls();
 </script>
 </body>
 </html>
