@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Image Aligner</title>
+<title>Image Aligner 2.0</title>
 <style>
 :root {
   color-scheme: dark;
@@ -95,6 +95,7 @@ h1 { margin:0; font-size:20px; font-weight:650; letter-spacing:-.4px; }
   padding:4px 3px; border:1px solid transparent; border-radius:6px; background:#191c21;
 }
 .layer-row.hidden-layer { opacity:.48; }
+.layer-row.selected-layer { border-color:#648bc3; }
 .layer-actions {
   display:flex; flex-direction:column; align-items:center;
   justify-content:center; gap:1px; width:20px;
@@ -205,7 +206,30 @@ h1 { margin:0; font-size:20px; font-weight:650; letter-spacing:-.4px; }
 .brush-value::-webkit-inner-spin-button,.brush-value::-webkit-outer-spin-button {
   -webkit-appearance:none; margin:0;
 }
-.layers-drop {
+
+
+.target-controls { display:flex; align-items:center; gap:2px; flex:0 0 auto; }
+.target-button {
+  min-width:25px; height:24px; padding:2px 5px; border:1px solid var(--border);
+  border-radius:4px; background:#191c21; color:var(--muted); font-size:9px;
+}
+.target-button.active { background:var(--active); border-color:#648bc3; color:#fff; }
+.brush-icon-pressure {
+  display:block; width:12px; height:12px; border-radius:50%; flex:none;
+  background:#e7ebf3; border:2px solid #e7ebf3;
+  box-shadow:inset 0 0 0 2px #292d34;
+  cursor:ew-resize; touch-action:none; user-select:none;
+}
+.liquify-tools { display:flex; flex-direction:column; align-items:center; gap:3px; }
+.liquify-toggle {
+  display:flex; align-items:center; justify-content:center; width:23px; height:22px;
+  padding:0; border:1px solid #414752; border-radius:4px; background:#242830;
+  color:#c6ccd7; font-size:16px; line-height:1;
+}
+.liquify-toggle:hover { background:#343a44; }
+.liquify-toggle.active { background:#304565; border-color:#79a9ff; color:#fff; }
+.liquify-toggle .push-icon { font-size:21px; font-weight:900; line-height:15px; }
+\n.layers-drop {
   display:flex; align-items:center; justify-content:center; min-height:45px;
   margin-top:6px; padding:6px; border:1px dashed #464d58; border-radius:6px;
   color:var(--muted); text-align:center; font-size:10px; cursor:pointer;
@@ -252,7 +276,7 @@ input[type="file"] { display:none; }
   #backgroundZone { min-height:200px; }
   .small-button,.save-button { padding:4px 5px; font-size:10px; }
   .brush-settings { gap:4px; }
-  .brush-setting { flex-basis:11px; width:11px; }
+  .brush-setting { flex-basis:11px; width:11px; }\n  .target-button { min-width:22px; padding:2px 3px; font-size:8px; }\n  .liquify-toggle { width:21px; height:21px; }
   .brush-icon-size { width:10px; height:10px; }
   .brush-icon-hardness { width:11px; height:11px; }
   .brush-value { flex-basis:26px; width:26px; min-width:26px; height:22px; font-size:9px; }
@@ -264,7 +288,7 @@ input[type="file"] { display:none; }
   <header>
     <div>
       <h1>Image Aligner</h1>
-      <div class="subtitle">Local image composition</div>
+      <div class="subtitle">Local image composition · v2.0</div>
     </div>
   </header>
 
@@ -292,7 +316,11 @@ input[type="file"] { display:none; }
 
     <section class="panel" id="layersPanel">
       <div class="panel-heading">
-        <div class="brush-settings" aria-label="Eraser brush settings">
+        <div class="target-controls" role="group" aria-label="Liquify target">
+          <button class="target-button active" id="targetBackground" type="button" aria-pressed="true" title="Liquify the background">BG</button>
+          <button class="target-button" id="targetLayers" type="button" aria-pressed="false" title="Liquify the selected layer">Layer</button>
+        </div>
+        <div class="brush-settings" aria-label="Brush settings">
           <label class="brush-setting" title="Brush diameter in preview-panel pixels">
             <span class="brush-icon-size" aria-hidden="true"></span>
             <input class="brush-input" id="brushSize" type="number" min="1" max="5000" step="1" value="15" aria-label="Brush size">
@@ -303,6 +331,11 @@ input[type="file"] { display:none; }
             <input class="brush-input" id="brushHardness" type="number" min="0" max="100" step="1" value="0" aria-label="Brush hardness">
           </label>
           <input class="brush-value" id="brushHardnessValue" type="number" min="0" max="100" step="1" value="0" title="Brush hardness percentage" aria-label="Brush hardness percentage">
+          <label class="brush-setting" title="Liquify pressure: 0–100%">
+            <span class="brush-icon-pressure" aria-hidden="true"></span>
+            <input class="brush-input" id="brushPressure" type="number" min="0" max="100" step="1" value="100" aria-label="Brush pressure">
+          </label>
+          <input class="brush-value" id="brushPressureValue" type="number" min="0" max="100" step="1" value="100" title="Brush pressure percentage" aria-label="Brush pressure percentage">
         </div>
         <button class="save-button" id="saveButton" disabled title="Save the composed image">↓ Save</button>
       </div>
@@ -319,7 +352,7 @@ input[type="file"] { display:none; }
   </div>
 
   <div class="status" id="status" role="status" aria-live="polite"></div>
-  <footer>Images are processed locally in your browser. No image uploads.</footer>
+  <footer>Images are processed locally in your browser. No image uploads. · Ctrl+Z Undo</footer>
 </main>
 
 <div class="context-menu" id="contextMenu" role="menu">
@@ -351,6 +384,10 @@ const brushSizeInput = $("brushSize");
 const brushSizeValue = $("brushSizeValue");
 const brushHardnessInput = $("brushHardness");
 const brushHardnessValue = $("brushHardnessValue");
+const brushPressureInput = $("brushPressure");
+const brushPressureValue = $("brushPressureValue");
+const targetBackgroundButton = $("targetBackground");
+const targetLayersButton = $("targetLayers");
 const contextMenu = $("contextMenu");
 const contextPaste = $("contextPaste");
 const brushCursor = $("brushCursor");
@@ -366,6 +403,15 @@ let strokeLayer = null;
 let lastBrushPoint = null;
 let contextMenuTarget = "background";
 let lastPointerPosition = null;
+let liquifyTarget = "background";
+let activeLiquifyTool = null;
+let selectedLayerId = null;
+let liquifyStroke = false;
+let liquifyLayer = null;
+let lastLiquifyPoint = null;
+const undoStack = [];
+const MAX_UNDO = 25;
+let restoringHistory = false;
 
 const CORNERS = [
   {id:"tl",symbol:"↖",label:"Top left"},
@@ -393,6 +439,7 @@ function bindHorizontalDrag(element,getValue,setValue,min,max) {
 
     event.preventDefault();
     event.stopPropagation();
+    if (element.classList.contains("opacity-icon")) pushHistory();
 
     dragging = true;
     pointerId = event.pointerId;
@@ -467,7 +514,7 @@ function loadImageFile(file) {
 function releaseImage(item) {
   if (!item) return;
   if (item.url) URL.revokeObjectURL(item.url);
-  for (const key of ["maskCanvas","renderCanvas"]) {
+  for (const key of ["maskCanvas","renderCanvas","sourceCanvas","editCanvas"]) {
     if (item[key]) { item[key].width = 1; item[key].height = 1; }
   }
 }
@@ -477,9 +524,13 @@ function updateSaveButton() { saveButton.disabled = !background || busy; }
 function createLayerData(loaded) {
   const layer = {
     ...loaded,id:nextLayerId++,corner:"tr",visible:true,opacity:100,eraserEnabled:false,
+    sourceCanvas:document.createElement("canvas"),
     maskCanvas:document.createElement("canvas"),
     renderCanvas:document.createElement("canvas")
   };
+  layer.sourceCanvas.width = layer.width;
+  layer.sourceCanvas.height = layer.height;
+  layer.sourceCanvas.getContext("2d").drawImage(loaded.image,0,0,layer.width,layer.height);
   layer.maskCanvas.width = layer.width;
   layer.maskCanvas.height = layer.height;
   layer.renderCanvas.width = layer.width;
@@ -496,7 +547,7 @@ function rebuildLayerCanvas(layer) {
   renderContext.clearRect(0,0,layer.width,layer.height);
   renderContext.globalCompositeOperation = "source-over";
   renderContext.globalAlpha = 1;
-  renderContext.drawImage(layer.image,0,0,layer.width,layer.height);
+  renderContext.drawImage(layer.sourceCanvas || layer.image,0,0,layer.width,layer.height);
   renderContext.globalCompositeOperation = "destination-in";
   renderContext.drawImage(layer.maskCanvas,0,0);
   renderContext.globalCompositeOperation = "source-over";
@@ -540,8 +591,13 @@ async function handleBackgroundFiles(fileList) {
   setStatus("Loading background...");
   try {
     const loaded = await loadImageFile(file);
+    pushHistory();
     const old = background;
     background = loaded;
+    background.editCanvas = document.createElement("canvas");
+    background.editCanvas.width = loaded.width;
+    background.editCanvas.height = loaded.height;
+    background.editCanvas.getContext("2d").drawImage(loaded.image,0,0);
     releaseImage(old);
     for (const layer of layers) releaseImage(layer);
     layers = [];
@@ -565,13 +621,16 @@ async function handleBackgroundFiles(fileList) {
 async function handleLayerFiles(fileList) {
   const files = Array.from(fileList).filter(isImageFile);
   if (!files.length) { setStatus("Please choose one or more image layers."); return; }
+  pushHistory();
   setStatus("Loading layers...");
   let added = 0;
   const errors = [];
   for (const file of files) {
     try {
       const loaded = await loadImageFile(file);
-      layers.push(createLayerData(loaded));
+      const newLayer = createLayerData(loaded);
+      layers.push(newLayer);
+      selectedLayerId = newLayer.id;
       added++;
     } catch (error) { errors.push(file.name || "Pasted image"); }
   }
@@ -661,7 +720,7 @@ function drawComposition(context,width,height) {
   if (!background) return;
   context.globalCompositeOperation = "source-over";
   context.globalAlpha = 1;
-  context.drawImage(background.image,0,0,background.width,background.height);
+  context.drawImage(background.editCanvas || background.image,0,0,background.width,background.height);
   for (const layer of layers) {
     if (!layer.visible || layer.opacity <= 0) continue;
     const pos = anchorPosition(layer,width,height);
@@ -683,6 +742,174 @@ function renderPreview() {
   drawComposition(ctx,background.width,background.height);
   previewCanvas.style.display = "block";
   backgroundEmpty.style.display = "none";
+}
+
+
+function cloneCanvas(source) {
+  if (!source) return null;
+  const copy = document.createElement("canvas");
+  copy.width = source.width || 1; copy.height = source.height || 1;
+  const c = copy.getContext("2d");
+  if (source.width && source.height) c.drawImage(source,0,0);
+  return copy;
+}
+function makeHistorySnapshot() {
+  return {
+    background: background ? {
+      name:background.name,width:background.width,height:background.height,
+      canvas:cloneCanvas(background.editCanvas || background.image)
+    } : null,
+    layers:layers.map(layer => ({
+      id:layer.id,name:layer.name,width:layer.width,height:layer.height,
+      source:cloneCanvas(layer.sourceCanvas || layer.image),
+      mask:cloneCanvas(layer.maskCanvas),corner:layer.corner,visible:layer.visible,
+      opacity:layer.opacity,eraserEnabled:layer.eraserEnabled
+    })),
+    nextLayerId, selectedLayerId, activeEraserLayerId, activeLiquifyTool, liquifyTarget
+  };
+}
+function pushHistory() {
+  if (restoringHistory) return;
+  undoStack.push(makeHistorySnapshot());
+  if (undoStack.length > MAX_UNDO) undoStack.shift();
+}
+function canvasAsImage(canvas) {
+  return canvas;
+}
+function undo() {
+  if (!undoStack.length) { setStatus("Nothing to undo."); return; }
+  const snapshot = undoStack.pop();
+  restoringHistory = true;
+  try {
+    if (background) releaseImage(background);
+    for (const layer of layers) releaseImage(layer);
+    background = null; layers = [];
+    if (snapshot.background) {
+      const c = snapshot.background.canvas;
+      background = {name:snapshot.background.name,width:snapshot.background.width,
+        height:snapshot.background.height,image:canvasAsImage(c),editCanvas:c,url:null};
+      backgroundEmpty.style.display = "none"; previewCanvas.style.display = "block";
+      backgroundName.textContent = background.name; backgroundName.title = background.name;
+      removeBackgroundButton.style.display = "flex";
+      previewCanvas.width = background.width; previewCanvas.height = background.height;
+    } else {
+      backgroundEmpty.style.display = "flex"; previewCanvas.style.display = "none";
+      backgroundName.textContent = "No background selected"; backgroundName.title = "";
+      removeBackgroundButton.style.display = "none";
+      previewCanvas.width = previewCanvas.height = 1;
+    }
+    layers = snapshot.layers.map(item => {
+      const layer = {id:item.id,name:item.name,width:item.width,height:item.height,
+        image:item.source,sourceCanvas:item.source,maskCanvas:item.mask,
+        renderCanvas:document.createElement("canvas"),corner:item.corner,visible:item.visible,
+        opacity:item.opacity,eraserEnabled:item.eraserEnabled,url:null};
+      layer.renderCanvas.width = layer.width; layer.renderCanvas.height = layer.height;
+      layer.url = item.source.toDataURL("image/png");
+      rebuildLayerCanvas(layer);
+      return layer;
+    });
+    nextLayerId = snapshot.nextLayerId; selectedLayerId = snapshot.selectedLayerId;
+    activeEraserLayerId = snapshot.activeEraserLayerId;
+    activeLiquifyTool = snapshot.activeLiquifyTool; liquifyTarget = snapshot.liquifyTarget;
+    targetBackgroundButton.classList.toggle("active",liquifyTarget === "background");
+    targetLayersButton.classList.toggle("active",liquifyTarget === "layers");
+    targetBackgroundButton.setAttribute("aria-pressed",String(liquifyTarget === "background"));
+    targetLayersButton.setAttribute("aria-pressed",String(liquifyTarget === "layers"));
+    renderLayerList(); renderPreview(); updateSaveButton(); updateBrushCursor();
+    setStatus("Undo completed.");
+  } finally { restoringHistory = false; }
+}
+function setLiquifyTarget(target) {
+  if (target !== liquifyTarget) pushHistory();
+  liquifyTarget = target;
+  targetBackgroundButton.classList.toggle("active",target === "background");
+  targetLayersButton.classList.toggle("active",target === "layers");
+  targetBackgroundButton.setAttribute("aria-pressed",String(target === "background"));
+  targetLayersButton.setAttribute("aria-pressed",String(target === "layers"));
+  updateBrushCursor();
+  setStatus(target === "background" ? "Liquify target: background." : "Liquify target: selected layer.");
+}
+targetBackgroundButton.addEventListener("click",() => setLiquifyTarget("background"));
+targetLayersButton.addEventListener("click",() => setLiquifyTarget("layers"));
+
+function makeLiquifyToggle(tool,label,iconText,layer) {
+  const button = document.createElement("button");
+  button.type = "button"; button.className = "liquify-toggle";
+  button.dataset.tool = tool;
+  button.title = label;
+  button.setAttribute("aria-label",label);
+  if (tool === "pushLeft") {
+    const span = document.createElement("span"); span.className = "push-icon";
+    span.textContent = "←"; button.appendChild(span);
+  } else button.textContent = "☝";
+  button.classList.toggle("active",activeLiquifyTool === tool && selectedLayerId === layer.id);
+  button.setAttribute("aria-pressed",String(activeLiquifyTool === tool && selectedLayerId === layer.id));
+  button.addEventListener("click",event => {
+    event.stopPropagation(); pushHistory();
+    selectedLayerId = layer.id; liquifyTarget = "layers"; activeLiquifyTool = activeLiquifyTool === tool ? null : tool;
+    targetLayersButton.classList.toggle("active",true); targetBackgroundButton.classList.toggle("active",false);
+    targetLayersButton.setAttribute("aria-pressed","true"); targetBackgroundButton.setAttribute("aria-pressed","false");
+    activeEraserLayerId = null;
+    for (const item of layers) item.eraserEnabled = false;
+    renderLayerList(); updateBrushCursor();
+    setStatus(activeLiquifyTool ? label + " active on " + layer.name + "." : "Liquify tool disabled.");
+  });
+  return button;
+}
+function getLiquifyCanvas() {
+  if (liquifyTarget === "background") return background && background.editCanvas;
+  const layer = layers.find(item => item.id === selectedLayerId);
+  if (!layer || !layer.visible) return null;
+  return layer.sourceCanvas;
+}
+function getLiquifyLayer() {
+  return layers.find(item => item.id === selectedLayerId) || null;
+}
+function liquifyAt(canvas,from,to,tool,altKey,scale) {
+  if (!canvas || !from || !to) return;
+  const pressure = getBrushPressure()/100;
+  if (pressure <= 0) return;
+  const radius = Math.max(1,getBrushSize()/scale/2);
+  let dx = to.x-from.x, dy = to.y-from.y;
+  if (tool === "pushLeft") {
+    dx = -dy;
+    if (altKey) dx = -dx;
+    dy = 0;
+  }
+  dx *= pressure; dy *= pressure;
+  if (Math.abs(dx)+Math.abs(dy) < 0.01) return;
+  const x0 = Math.max(0,Math.floor(to.x-radius-Math.abs(dx)));
+  const y0 = Math.max(0,Math.floor(to.y-radius-Math.abs(dy)));
+  const x1 = Math.min(canvas.width,Math.ceil(to.x+radius+Math.abs(dx)));
+  const y1 = Math.min(canvas.height,Math.ceil(to.y+radius+Math.abs(dy)));
+  if (x1<=x0 || y1<=y0) return;
+  const context = canvas.getContext("2d",{willReadFrequently:true});
+  const image = context.getImageData(x0,y0,x1-x0,y1-y0);
+  const src = new Uint8ClampedArray(image.data);
+  const w=image.width,h=image.height;
+  for (let y=0;y<h;y++) for (let x=0;x<w;x++) {
+    const px=x+x0, py=y+y0, dist=Math.hypot(px-to.x,py-to.y);
+    if (dist>=radius) continue;
+    const hard=getBrushHardness()/100;
+    const norm=dist/radius;
+    const falloff = norm <= hard ? 1 : (hard>=1 ? 1 : Math.pow(1-(norm-hard)/(1-hard),2));
+    const sx=Math.round(px-dx*falloff), sy=Math.round(py-dy*falloff);
+    if (sx<x0 || sx>=x1 || sy<y0 || sy>=y1) continue;
+    const di=(y*w+x)*4, si=((sy-y0)*w+(sx-x0))*4;
+    image.data[di]=src[si]; image.data[di+1]=src[si+1];
+    image.data[di+2]=src[si+2]; image.data[di+3]=src[si+3];
+  }
+  context.putImageData(image,x0,y0);
+}
+function getTargetLocalPoint(point) {
+  if (liquifyTarget === "background") return {x:point.x,y:point.y};
+  const layer=getLiquifyLayer();
+  return layer ? pointInsideLayer(layer,point) : null;
+}
+function updateLiquifyPreview() {
+  const layer=getLiquifyLayer();
+  if (liquifyTarget === "layers" && layer) rebuildLayerCanvas(layer);
+  renderPreview(); updateBrushCursor();
 }
 
 function deleteLayer(id) {
@@ -762,9 +989,13 @@ function makeEraserToggle(layer) {
   button.textContent = "🧽";
   button.addEventListener("click",event => {
     event.stopPropagation();
-    pasteTarget = "layers";
+    pushHistory();
+    pasteTarget = "layers"; selectedLayerId = layer.id; activeLiquifyTool = null; liquifyTarget = "layers";
+    targetLayersButton.classList.add("active"); targetBackgroundButton.classList.remove("active");
+    targetLayersButton.setAttribute("aria-pressed","true"); targetBackgroundButton.setAttribute("aria-pressed","false");
     layer.eraserEnabled = !layer.eraserEnabled;
     if (layer.eraserEnabled) {
+      activeLiquifyTool = null;
       for (const other of layers) if (other.id !== layer.id) other.eraserEnabled = false;
       activeEraserLayerId = layer.id;
       setStatus("Eraser active. Brush over this layer in the preview.");
@@ -790,7 +1021,7 @@ function renderLayerList() {
   }
   for (const layer of layers) {
     const row = document.createElement("div");
-    row.className = "layer-row" + (layer.visible ? "" : " hidden-layer");
+    row.className = "layer-row" + (layer.visible ? "" : " hidden-layer") + (selectedLayerId === layer.id ? " selected-layer" : "");
     row.dataset.layerId = String(layer.id);
 
     const actions = document.createElement("div");
@@ -802,7 +1033,7 @@ function renderLayerList() {
     eye.setAttribute("aria-label",eye.title);
     eye.setAttribute("aria-pressed",String(layer.visible));
     eye.addEventListener("click",event => {
-      event.stopPropagation(); pasteTarget = "layers"; layer.visible = !layer.visible;
+      event.stopPropagation(); pushHistory(); pasteTarget = "layers"; selectedLayerId = layer.id; layer.visible = !layer.visible;
       renderLayerList(); renderPreview(); updateBrushCursor();
       setStatus(layer.name + (layer.visible ? " shown." : " hidden."));
     });
@@ -835,7 +1066,7 @@ function renderLayerList() {
       button.setAttribute("aria-label",corner.label);
       button.setAttribute("aria-pressed",String(layer.corner === corner.id));
       button.addEventListener("click",event => {
-        event.stopPropagation(); pasteTarget = "layers"; layer.corner = corner.id;
+        event.stopPropagation(); pushHistory(); pasteTarget = "layers"; selectedLayerId = layer.id; layer.corner = corner.id;
         renderLayerList(); renderPreview(); updateBrushCursor();
         setStatus(layer.name + " aligned: " + corner.label + ".");
       });
@@ -843,10 +1074,16 @@ function renderLayerList() {
     }
     const sideControls = document.createElement("div");
     sideControls.className = "layer-side-controls";
-    sideControls.append(makeOpacityControl(layer),makeEraserToggle(layer));
+    const liquifyTools = document.createElement("div");
+    liquifyTools.className = "liquify-tools";
+    liquifyTools.append(
+      makeLiquifyToggle("forwardWarp","Forward Warp tool","☝",layer),
+      makeLiquifyToggle("pushLeft","Push Left tool","←",layer)
+    );
+    sideControls.append(makeOpacityControl(layer),makeEraserToggle(layer),liquifyTools);
     tools.append(corners,sideControls);
-    thumb.addEventListener("click",() => { pasteTarget = "layers"; });
-    row.addEventListener("click",() => { pasteTarget = "layers"; });
+    thumb.addEventListener("click",() => { pasteTarget = "layers"; selectedLayerId = layer.id; });
+    row.addEventListener("click",() => { pasteTarget = "layers"; selectedLayerId = layer.id; });
     row.addEventListener("contextmenu",event => showContextMenu(event,"layers"));
     row.append(actions,thumb,tools);
     layerList.appendChild(row);
@@ -861,9 +1098,14 @@ function getBrushHardness() {
   const value = Number(brushHardnessValue.value);
   return clamp(Number.isFinite(value) ? value : 0,0,100);
 }
+function getBrushPressure() {
+  const value = Number(brushPressureValue.value);
+  return clamp(Number.isFinite(value) ? value : 100,0,100);
+}
 function syncBrushInputs() {
   brushSizeInput.value = brushSizeValue.value = String(getBrushSize());
   brushHardnessInput.value = brushHardnessValue.value = String(getBrushHardness());
+  brushPressureInput.value = brushPressureValue.value = String(getBrushPressure());
 }
 function bindBrushValue(mainInput,valueInput,min,max,fallback) {
   const sync = source => {
@@ -880,6 +1122,7 @@ function bindBrushValue(mainInput,valueInput,min,max,fallback) {
 }
 bindBrushValue(brushSizeInput,brushSizeValue,1,5000,15);
 bindBrushValue(brushHardnessInput,brushHardnessValue,0,100,0);
+bindBrushValue(brushPressureInput,brushPressureValue,0,100,100);
 
 bindHorizontalDrag(
   document.querySelector(".brush-icon-size"),
@@ -897,6 +1140,17 @@ bindHorizontalDrag(
   getBrushHardness,
   value => {
     brushHardnessInput.value = brushHardnessValue.value = String(value);
+    updateBrushCursor();
+  },
+  0,
+  100
+);
+
+bindHorizontalDrag(
+  document.querySelector(".brush-icon-pressure"),
+  getBrushPressure,
+  value => {
+    brushPressureInput.value = brushPressureValue.value = String(value);
     updateBrushCursor();
   },
   0,
@@ -971,8 +1225,9 @@ function getActiveEraserLayer(point) {
   return {layer,localPoint};
 }
 function updateBrushCursor() {
-  const enabled = activeEraserLayerId !== null && !!background;
+  const enabled = (activeEraserLayerId !== null || !!activeLiquifyTool) && !!background;
   previewCanvas.classList.toggle("eraser-cursor",enabled);
+  previewCanvas.style.cursor = enabled ? "none" : "";
   if (!enabled || !lastPointerPosition) {
     brushCursor.style.display = "none";
     return;
@@ -1001,18 +1256,34 @@ previewCanvas.addEventListener("pointerleave",() => {
   brushCursor.style.display = "none";
 });
 previewCanvas.addEventListener("pointerdown",event => {
-  if (!background || activeEraserLayerId === null) return;
+  if (!background) return;
   const backgroundPoint = getBackgroundPoint(event);
   if (!backgroundPoint) return;
+
+  if (activeLiquifyTool) {
+    const canvas = getLiquifyCanvas();
+    const local = getTargetLocalPoint(backgroundPoint);
+    if (!canvas || !local) {
+      setStatus(liquifyTarget === "layers" ? "Select a visible layer first." : "Load a background first.");
+      return;
+    }
+    event.preventDefault();
+    pushHistory();
+    liquifyStroke = true;
+    lastLiquifyPoint = local;
+    previewCanvas.setPointerCapture(event.pointerId);
+    return;
+  }
+
+  if (activeEraserLayerId === null) return;
   const target = getActiveEraserLayer(backgroundPoint);
   if (!target) { setStatus("Move the eraser over the active layer to erase it."); return; }
   event.preventDefault();
+  pushHistory();
   pasteTarget = "background";
   drawingStroke = true;
   strokeLayer = target.layer;
   lastBrushPoint = target.localPoint;
-
-  // Convert the preview-panel pixel diameter into source-image coordinates.
   const sourceBrushSize = getBrushSize()/backgroundPoint.scale;
   eraseAt(strokeLayer,lastBrushPoint,sourceBrushSize,getBrushHardness());
   rebuildLayerCanvas(strokeLayer);
@@ -1021,25 +1292,39 @@ previewCanvas.addEventListener("pointerdown",event => {
   updateBrushCursor();
 });
 previewCanvas.addEventListener("pointermove",event => {
+  if (liquifyStroke && activeLiquifyTool) {
+    const bgPoint=getBackgroundPoint(event);
+    if (!bgPoint) { lastLiquifyPoint=null; return; }
+    const local=getTargetLocalPoint(bgPoint);
+    if (!local) { lastLiquifyPoint=null; return; }
+    if (lastLiquifyPoint) {
+      const canvas=getLiquifyCanvas();
+      liquifyAt(canvas,lastLiquifyPoint,local,activeLiquifyTool,event.altKey,bgPoint.scale);
+      lastLiquifyPoint=local;
+      updateLiquifyPreview();
+    } else lastLiquifyPoint=local;
+    event.preventDefault();
+    return;
+  }
   if (!drawingStroke || !strokeLayer) return;
   const backgroundPoint = getBackgroundPoint(event);
   if (!backgroundPoint) { lastBrushPoint = null; return; }
   const localPoint = pointInsideLayer(strokeLayer,backgroundPoint);
   if (!localPoint) { lastBrushPoint = null; return; }
   event.preventDefault();
-
   const sourceBrushSize = getBrushSize()/backgroundPoint.scale;
-  if (lastBrushPoint) {
-    eraseStrokeSegment(strokeLayer,lastBrushPoint,localPoint,sourceBrushSize,getBrushHardness());
-  } else {
-    eraseAt(strokeLayer,localPoint,sourceBrushSize,getBrushHardness());
-  }
+  if (lastBrushPoint) eraseStrokeSegment(strokeLayer,lastBrushPoint,localPoint,sourceBrushSize,getBrushHardness());
+  else eraseAt(strokeLayer,localPoint,sourceBrushSize,getBrushHardness());
   lastBrushPoint = localPoint;
   rebuildLayerCanvas(strokeLayer);
   renderPreview();
   updateBrushCursor();
 });
 function finishEraserStroke() {
+  if (liquifyStroke) {
+    liquifyStroke=false; lastLiquifyPoint=null;
+    updateLiquifyPreview(); setStatus("Liquify stroke applied."); return;
+  }
   if (!drawingStroke) return;
   drawingStroke = false;
   strokeLayer = null;
@@ -1157,7 +1442,12 @@ layersInput.addEventListener("change",() => {
 });
 contextPaste.addEventListener("click",pasteFromContextMenu);
 document.addEventListener("pointerdown",event => { if (!contextMenu.contains(event.target)) hideContextMenu(); });
-document.addEventListener("keydown",event => { if (event.key === "Escape") hideContextMenu(); });
+document.addEventListener("keydown",event => {
+  if (event.key === "Escape") { hideContextMenu(); return; }
+  if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "z" && !event.shiftKey) {
+    event.preventDefault(); undo();
+  }
+});
 window.addEventListener("resize",() => {
   hideContextMenu();
   updateBrushCursor();
