@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -37,7 +38,7 @@ h1 { margin:0; font-size:20px; font-weight:650; letter-spacing:-.4px; }
 .panel.drag-over { border-color:var(--accent); }
 .panel-heading {
   display:flex; align-items:center; justify-content:flex-end;
-  flex-wrap:nowrap; gap:4px; min-height:29px; margin-bottom:7px;
+  flex-wrap:nowrap; gap:10px; min-height:29px; margin-bottom:7px;
 }
 .small-button,.save-button {
   display:inline-flex; align-items:center; justify-content:center; gap:5px;
@@ -119,7 +120,7 @@ h1 { margin:0; font-size:20px; font-weight:650; letter-spacing:-.4px; }
 
 .layer-tools {
   min-width:0; display:flex; flex-direction:row; align-items:center;
-  justify-content:flex-start; gap:2px;
+  justify-content:flex-start; gap:9px;
 }
 .corner-controls {
   display:grid; grid-template-columns:22px 22px; grid-template-rows:21px 21px;
@@ -152,6 +153,7 @@ h1 { margin:0; font-size:20px; font-weight:650; letter-spacing:-.4px; }
   background-color:#343943;
   background-image:repeating-conic-gradient(#c9cfda 0% 25%,#343943 0% 50%);
   background-size:6px 6px;
+  cursor:ew-resize; touch-action:none; user-select:none;
 }
 .opacity-input {
   display:block; flex:0 0 3ch; width:3ch; min-width:0; height:21px; padding:1px 0;
@@ -174,7 +176,7 @@ h1 { margin:0; font-size:20px; font-weight:650; letter-spacing:-.4px; }
 
 .brush-settings {
   order:1; display:flex; align-items:center; justify-content:flex-end;
-  gap:4px; min-width:0; flex:0 1 auto;
+  gap:8px; min-width:0; flex:0 1 auto;
 }
 .brush-setting {
   display:flex; align-items:center; justify-content:center; flex:0 0 13px;
@@ -186,11 +188,12 @@ h1 { margin:0; font-size:20px; font-weight:650; letter-spacing:-.4px; }
 }
 .brush-icon-size {
   display:block; width:12px; height:12px; border:1.5px solid #d9deea;
-  border-radius:50%; flex:none;
+  border-radius:50%; flex:none; cursor:ew-resize; touch-action:none; user-select:none;
 }
 .brush-icon-hardness {
   display:block; width:13px; height:13px; border-radius:50%; flex:none;
   background:radial-gradient(circle,#e7ebf3 0%,rgba(231,235,243,.72) 38%,rgba(231,235,243,0) 72%);
+  cursor:ew-resize; touch-action:none; user-select:none;
 }
 .brush-setting:focus-within { outline:1px solid var(--accent); border-radius:4px; }
 .brush-value {
@@ -234,11 +237,12 @@ input[type="file"] { display:none; }
   body { padding:10px 5px; }
   .workspace { grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr); gap:5px; }
   .panel { padding:5px; }
-  .panel-heading { gap:3px; }
+  .panel-heading { gap:5px; }
   .layer-row { grid-template-columns:18px 46px minmax(0,1fr); gap:2px; min-height:100px; padding:3px 2px; }
   .layer-actions { width:18px; }
   .eye-button,.delete-button { width:18px; height:19px; }
   .thumb { width:46px; height:46px; }
+  .layer-tools { gap:5px; }
   .corner-controls { grid-template-columns:20px 20px; grid-template-rows:20px 20px; }
   .corner-button { width:20px; height:20px; font-size:14px; }
   .opacity-control { gap:1px; }
@@ -247,7 +251,7 @@ input[type="file"] { display:none; }
   .eraser-toggle { flex-basis:21px; width:21px; min-width:21px; height:21px; font-size:12px; }
   #backgroundZone { min-height:200px; }
   .small-button,.save-button { padding:4px 5px; font-size:10px; }
-  .brush-settings { gap:2px; }
+  .brush-settings { gap:4px; }
   .brush-setting { flex-basis:11px; width:11px; }
   .brush-icon-size { width:10px; height:10px; }
   .brush-icon-hardness { width:11px; height:11px; }
@@ -291,14 +295,14 @@ input[type="file"] { display:none; }
         <div class="brush-settings" aria-label="Eraser brush settings">
           <label class="brush-setting" title="Brush diameter in preview-panel pixels">
             <span class="brush-icon-size" aria-hidden="true"></span>
-            <input class="brush-input" id="brushSize" type="number" min="1" max="5000" step="1" value="40" aria-label="Brush size">
+            <input class="brush-input" id="brushSize" type="number" min="1" max="5000" step="1" value="15" aria-label="Brush size">
           </label>
-          <input class="brush-value" id="brushSizeValue" type="number" min="1" max="5000" step="1" value="40" title="Brush diameter in preview-panel pixels" aria-label="Brush size in preview-panel pixels">
+          <input class="brush-value" id="brushSizeValue" type="number" min="1" max="5000" step="1" value="15" title="Brush diameter in preview-panel pixels" aria-label="Brush size in preview-panel pixels">
           <label class="brush-setting" title="Brush hardness: 0 soft, 100 hard">
             <span class="brush-icon-hardness" aria-hidden="true"></span>
-            <input class="brush-input" id="brushHardness" type="number" min="0" max="100" step="1" value="80" aria-label="Brush hardness">
+            <input class="brush-input" id="brushHardness" type="number" min="0" max="100" step="1" value="0" aria-label="Brush hardness">
           </label>
-          <input class="brush-value" id="brushHardnessValue" type="number" min="0" max="100" step="1" value="80" title="Brush hardness percentage" aria-label="Brush hardness percentage">
+          <input class="brush-value" id="brushHardnessValue" type="number" min="0" max="100" step="1" value="0" title="Brush hardness percentage" aria-label="Brush hardness percentage">
         </div>
         <button class="save-button" id="saveButton" disabled title="Save the composed image">↓ Save</button>
       </div>
@@ -372,6 +376,63 @@ const CORNERS = [
 
 function setStatus(message) { statusBox.textContent = message; }
 function clamp(value,min,max) { return Math.max(min,Math.min(max,value)); }
+
+/*
+ * Horizontal drag control:
+ * Every 2 CSS pixels changes the value by 1.
+ * Holding Shift while dragging changes it by 10 instead.
+ */
+function bindHorizontalDrag(element,getValue,setValue,min,max) {
+  let dragging = false;
+  let pointerId = null;
+  let startX = 0;
+  let startValue = 0;
+
+  element.addEventListener("pointerdown",event => {
+    if (event.button !== 0) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    dragging = true;
+    pointerId = event.pointerId;
+    startX = event.clientX;
+    startValue = getValue();
+
+    try {
+      element.setPointerCapture(event.pointerId);
+    } catch (_) {}
+  });
+
+  element.addEventListener("pointermove",event => {
+    if (!dragging || event.pointerId !== pointerId) return;
+
+    event.preventDefault();
+
+    const distance = event.clientX - startX;
+    const multiplier = event.shiftKey ? 10 : 1;
+    const steps = Math.round(distance / 2);
+    const value = clamp(startValue + steps * multiplier,min,max);
+
+    setValue(value);
+  });
+
+  function finishDrag(event) {
+    if (!dragging) return;
+    if (event && pointerId !== null && event.pointerId !== pointerId) return;
+
+    dragging = false;
+    pointerId = null;
+  }
+
+  element.addEventListener("pointerup",finishDrag);
+  element.addEventListener("pointercancel",finishDrag);
+  element.addEventListener("lostpointercapture",finishDrag);
+
+  element.addEventListener("click",event => {
+    if (event.detail > 0) event.preventDefault();
+  });
+}
 
 function isImageFile(file) {
   return !!file && (
@@ -646,10 +707,12 @@ function makeOpacityControl(layer) {
   const wrapper = document.createElement("div");
   wrapper.className = "opacity-control";
   wrapper.title = "Layer opacity (0–100%)";
+
   const icon = document.createElement("span");
   icon.className = "opacity-icon";
-  icon.title = "Layer opacity";
+  icon.title = "Drag horizontally to change opacity. Hold Shift for steps of 10.";
   icon.setAttribute("aria-hidden","true");
+
   const input = document.createElement("input");
   input.className = "opacity-input";
   input.type = "number"; input.min = "0"; input.max = "100"; input.step = "1";
@@ -672,6 +735,19 @@ function makeOpacityControl(layer) {
     renderPreview();
   });
   input.addEventListener("keydown",event => { if (event.key === "Enter") input.blur(); });
+
+  bindHorizontalDrag(
+    icon,
+    () => layer.opacity,
+    value => {
+      layer.opacity = value;
+      input.value = String(value);
+      renderPreview();
+    },
+    0,
+    100
+  );
+
   wrapper.append(icon,input);
   return wrapper;
 }
@@ -779,11 +855,11 @@ function renderLayerList() {
 
 function getBrushSize() {
   const value = Number(brushSizeValue.value);
-  return clamp(Number.isFinite(value) && value > 0 ? value : 40,1,5000);
+  return clamp(Number.isFinite(value) && value > 0 ? value : 15,1,5000);
 }
 function getBrushHardness() {
   const value = Number(brushHardnessValue.value);
-  return clamp(Number.isFinite(value) ? value : 80,0,100);
+  return clamp(Number.isFinite(value) ? value : 0,0,100);
 }
 function syncBrushInputs() {
   brushSizeInput.value = brushSizeValue.value = String(getBrushSize());
@@ -802,8 +878,30 @@ function bindBrushValue(mainInput,valueInput,min,max,fallback) {
   mainInput.addEventListener("change",() => sync(mainInput));
   valueInput.addEventListener("change",() => sync(valueInput));
 }
-bindBrushValue(brushSizeInput,brushSizeValue,1,5000,40);
-bindBrushValue(brushHardnessInput,brushHardnessValue,0,100,80);
+bindBrushValue(brushSizeInput,brushSizeValue,1,5000,15);
+bindBrushValue(brushHardnessInput,brushHardnessValue,0,100,0);
+
+bindHorizontalDrag(
+  document.querySelector(".brush-icon-size"),
+  getBrushSize,
+  value => {
+    brushSizeInput.value = brushSizeValue.value = String(value);
+    updateBrushCursor();
+  },
+  1,
+  5000
+);
+
+bindHorizontalDrag(
+  document.querySelector(".brush-icon-hardness"),
+  getBrushHardness,
+  value => {
+    brushHardnessInput.value = brushHardnessValue.value = String(value);
+    updateBrushCursor();
+  },
+  0,
+  100
+);
 
 function getBackgroundPoint(event) {
   if (!background) return null;
